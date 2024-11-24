@@ -88,6 +88,11 @@
             font-weight: bold;
             color: #1877f2;
             margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .message-username:hover {
+            text-decoration: underline;
         }
 
         .message-time {
@@ -176,6 +181,77 @@
         .chat-container {
             height: calc(100vh - 100px);
         }
+
+        .message-item.own-message {
+            background-color: #e7f3ff;
+            border-color: #cce4ff;
+            margin-left: auto;
+            margin-right: 0;
+            width: 80%;
+        }
+
+        .message-item.own-message .message-username {
+            color: #0d6efd;
+        }
+
+        .message-item.system-message {
+            background-color: #f8f9fa;
+            border-color: #e9ecef;
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            width: 70%;
+            margin: 10px auto;
+        }
+
+        .mention {
+            color: #1877f2;
+            font-weight: bold;
+            background-color: #e7f3ff;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        .mentioned {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .message-actions {
+            display: none;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .own-message .message-actions {
+            display: block;
+        }
+
+        .edit-btn, .delete-btn {
+            color: #666;
+            cursor: pointer;
+            margin-right: 10px;
+            background: none;
+            border: none;
+            padding: 2px 5px;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            color: #1877f2;
+        }
+
+        .edited-mark {
+            font-size: 11px;
+            color: #666;
+            font-style: italic;
+            margin-left: 5px;
+        }
+
+        .editing {
+            background-color: #f8f9fa !important;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -187,7 +263,9 @@
             </div>
             <h1>Chat App</h1>
         </div>
-        <button class="logout-btn" onclick="logout()">Uitloggen</button>
+        <div style="display: flex; align-items: center;">
+            <button class="logout-btn" onclick="logout()">Uitloggen</button>
+        </div>
     </div>
 
     <div id="userInfoModal" class="user-info-modal">
@@ -252,41 +330,21 @@ const firebaseConfig = {
                 `;
 
                 loadMessages();
+                handleTyping();
             }
         });
 
-        function loadMessages() {
-            const messagesRef = database.ref('messages');
-            const messagesDiv = document.getElementById('messages');
-            
-            // Wis bestaande berichten
-            messagesDiv.innerHTML = '';
-            
-            // Luister naar nieuwe berichten
-            messagesRef.orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
-                // Wis bestaande berichten bij elke update
-                messagesDiv.innerHTML = '';
-                
-                // Loop door alle berichten
-                snapshot.forEach((childSnapshot) => {
-                    const message = childSnapshot.val();
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'message-item';
-                    
-                    const time = new Date(message.timestamp).toLocaleTimeString();
-                    
-                    messageElement.innerHTML = `
-                        <span class="message-username">${message.username}</span>
-                        <span class="message-time">${time}</span>
-                        <div class="message-text">${message.text}</div>
-                    `;
-                    
-                    messagesDiv.appendChild(messageElement);
-                });
-                
-                // Scroll naar het laatste bericht
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        function formatMessageWithMentions(text, currentUsername) {
+            const formattedText = text.replace(/@(\w+)/g, (match, username) => {
+                return `<span class="mention">@${username}</span>`;
             });
+            
+            const currentUserMention = `@${currentUsername}`;
+            if (text.includes(currentUserMention)) {
+                return `<div class="mentioned">${formattedText}</div>`;
+            }
+            
+            return formattedText;
         }
 
         function sendMessage() {
@@ -339,6 +397,179 @@ const firebaseConfig = {
             const modal = document.getElementById('userInfoModal');
             if (event.target === modal) {
                 modal.style.display = 'none';
+            }
+        }
+
+        function handleTyping() {
+            const userTypingRef = database.ref('typing/' + auth.currentUser.uid);
+            let typingTimeout;
+
+            document.getElementById('messageInput').addEventListener('input', () => {
+                console.log('User is typing...');
+                // Update typing status
+                userTypingRef.set({
+                    username: username,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Clear previous timeout
+                clearTimeout(typingTimeout);
+
+                // Set new timeout to remove typing status
+                typingTimeout = setTimeout(() => {
+                    console.log('Removing typing status...');
+                    userTypingRef.remove();
+                }, 2000);
+            });
+
+            // Remove typing status when user disconnects
+            userTypingRef.onDisconnect().remove();
+
+            // Listen for all typing users
+            database.ref('typing').on('value', (snapshot) => {
+                console.log('Typing status changed');
+                const typingUsers = [];
+                const now = Date.now();
+                
+                snapshot.forEach((child) => {
+                    if (child.key !== auth.currentUser.uid) {
+                        const userData = child.val();
+                        console.log('Typing user data:', userData);
+                        if (now - userData.timestamp < 2000) {
+                            typingUsers.push(userData.username);
+                        }
+                    }
+                });
+
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingUsers.length > 0) {
+                    console.log('Users typing:', typingUsers);
+                    if (typingUsers.length === 1) {
+                        typingIndicator.textContent = `${typingUsers[0]} is aan het typen...`;
+                    } else if (typingUsers.length === 2) {
+                        typingIndicator.textContent = `${typingUsers[0]} en ${typingUsers[1]} zijn aan het typen...`;
+                    } else {
+                        typingIndicator.textContent = 'Meerdere mensen zijn aan het typen...';
+                    }
+                } else {
+                    typingIndicator.textContent = '';
+                }
+            });
+        }
+
+        function loadMessages() {
+            if (window.currentMessageRef) {
+                window.currentMessageRef.off();
+            }
+
+            const messagesRef = database.ref('messages');
+            window.currentMessageRef = messagesRef;
+            
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
+            
+            messagesRef.orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
+                messagesDiv.innerHTML = '';
+                
+                snapshot.forEach((childSnapshot) => {
+                    const message = childSnapshot.val();
+                    const messageElement = document.createElement('div');
+                    
+                    const isOwnMessage = message.uid === auth.currentUser.uid;
+                    messageElement.className = `message-item ${isOwnMessage ? 'own-message' : ''}`;
+                    messageElement.id = `message-${childSnapshot.key}`;
+                    
+                    const time = new Date(message.timestamp).toLocaleTimeString();
+                    const formattedText = formatMessageWithMentions(message.text, username);
+                    
+                    messageElement.innerHTML = `
+                        <span class="message-username">${message.username}</span>
+                        <span class="message-time">${time}</span>
+                        <div class="message-text">${formattedText}</div>
+                        ${message.edited ? '<span class="edited-mark"><i class="fas fa-pen-fancy"></i> bewerkt</span>' : ''}
+                        ${isOwnMessage ? `
+                            <div class="message-actions">
+                                <button class="edit-btn" onclick="editMessage('${childSnapshot.key}')">
+                                    <i class="fas fa-edit"></i> Bewerken
+                                </button>
+                                <button class="delete-btn" onclick="deleteMessage('${childSnapshot.key}')">
+                                    <i class="fas fa-trash"></i> Verwijderen
+                                </button>
+                            </div>
+                        ` : ''}
+                    `;
+                    
+                    messagesDiv.appendChild(messageElement);
+                });
+                
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        }
+
+        function editMessage(messageId) {
+            const messageElement = document.getElementById(`message-${messageId}`);
+            const messageText = messageElement.querySelector('.message-text');
+            const currentText = messageText.textContent;
+            
+            // Add editing class
+            messageElement.classList.add('editing');
+            
+            // Replace message text with input field
+            messageText.innerHTML = `
+                <input type="text" class="message-input" value="${currentText}" style="width: 100%">
+                <div style="margin-top: 5px">
+                    <button onclick="saveEdit('${messageId}')" class="send-button" style="padding: 4px 8px; font-size: 12px;">
+                        Opslaan
+                    </button>
+                    <button onclick="cancelEdit('${messageId}')" class="logout-btn" style="padding: 4px 8px; font-size: 12px;">
+                        Annuleren
+                    </button>
+                </div>
+            `;
+            
+            // Focus and select all text
+            const input = messageText.querySelector('input');
+            input.focus();
+            input.select();
+        }
+
+        function saveEdit(messageId) {
+            const messageElement = document.getElementById(`message-${messageId}`);
+            const input = messageElement.querySelector('input');
+            const newText = input.value.trim();
+            
+            if (newText) {
+                const messageRef = database.ref(`messages/${messageId}`);
+                messageRef.update({
+                    text: newText,
+                    edited: true,
+                    editedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    messageElement.classList.remove('editing');
+                }).catch((error) => {
+                    console.error('Error updating message:', error);
+                    alert('Bericht kon niet worden bijgewerkt');
+                });
+            }
+        }
+
+        function cancelEdit(messageId) {
+            const messageElement = document.getElementById(`message-${messageId}`);
+            messageElement.classList.remove('editing');
+            loadMessages(); // Reload messages to restore original state
+        }
+
+        function deleteMessage(messageId) {
+            if (confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) {
+                const messageRef = database.ref(`messages/${messageId}`);
+                messageRef.remove()
+                    .then(() => {
+                        console.log('Message deleted successfully');
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting message:', error);
+                        alert('Bericht kon niet worden verwijderd');
+                    });
             }
         }
     </script>

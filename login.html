@@ -71,6 +71,36 @@
             color: #383d41;
             border: 1px solid #d6d8db;
         }
+        .disabled-button {
+            background-color: rgba(0, 0, 0, 0.1) !important;
+            cursor: not-allowed !important;
+            position: relative;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -85,7 +115,10 @@
                 <input type="password" id="loginPassword" placeholder="Wachtwoord">
             </div>
             <button onclick="login()">Inloggen</button>
-            <button onclick="loginWithGoogle()">Inloggen met Google</button>
+            <div class="tooltip">
+                <button class="disabled-button" disabled>Inloggen met Google</button>
+                <span class="tooltiptext">Google login is momenteel uitgeschakeld door Google Firebase</span>
+            </div>
             <p class="toggle-form" onclick="toggleForms()">Nog geen account? Registreer hier</p>
         </div>
 
@@ -201,22 +234,6 @@
                 })
                 .catch((error) => {
                     showMessage('Dit e-mailadres kan niet worden gebruikt', 'error');
-                });
-        }
-
-        function loginWithGoogle() {
-            showMessage('Bezig met Google login...', 'loading');
-            
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    showMessage('Succesvol ingelogd met Google!', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'chat.html';
-                    }, 1000);
-                })
-                .catch((error) => {
-                    showMessage('Google login mislukt', 'error');
                 });
         }
 
