@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #1877f2;
+            font-size: 24px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        .welcome-message {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .chat-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .message-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            background: white;
+            border: 1px solid #e9ecef;
+        }
+
+        .message-username {
+            font-weight: bold;
+            color: #1877f2;
+            margin-right: 8px;
+        }
+
+        .message-time {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .message-text {
+            margin-top: 5px;
+            word-break: break-word;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .send-button {
+            padding: 8px 16px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .send-button:hover {
+            background-color: #166fe5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Chat App</h1>
+        <button class="logout-btn" onclick="logout()">Uitloggen</button>
+    </div>
+
+    <div class="welcome-message">
+        <h2>Welkom bij de Chat!</h2>
+        <div class="user-info" id="userInfo">
+            Laden...
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="messageInput" class="message-input" placeholder="Type een bericht...">
+            <button onclick="sendMessage()" class="send-button">Verstuur</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    
+    <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBMnI595pfcf1Qm2HPAs59N5524YKcOjGM",
+  authDomain: "chatapp-fa4bc.firebaseapp.com",
+  databaseURL: "https://chatapp-fa4bc-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "chatapp-fa4bc",
+  storageBucket: "chatapp-fa4bc.firebasestorage.app",
+  messagingSenderId: "703444169561",
+  appId: "1:703444169561:web:f6aaefa7af17d8de31d248"
+};
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        database.ref('.info/connected').on('value', function(snap) {
+            if (snap.val() === true) {
+                console.log('Connected to Firebase');
+            } else {
+                console.log('Not connected to Firebase');
+            }
+        });
+
+        let username = '';
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                username = localStorage.getItem('username_' + user.uid) || 'Anoniem';
+                const userInfo = document.getElementById('userInfo');
+                
+                userInfo.innerHTML = `
+                    <strong>Gebruikersnaam:</strong> ${username}<br>
+                    <strong>E-mail:</strong> ${user.email}<br>
+                    <strong>Account ID:</strong> ${user.uid}<br>
+                    ${user.photoURL ? `<img src="${user.photoURL}" alt="Profielfoto" style="width: 50px; border-radius: 50%; margin-top: 10px;">` : ''}
+                `;
+
+                loadMessages();
+            }
+        });
+
+        function loadMessages() {
+            const messagesRef = database.ref('messages');
+            const messagesDiv = document.getElementById('messages');
+            
+            // Wis bestaande berichten
+            messagesDiv.innerHTML = '';
+            
+            // Luister naar nieuwe berichten
+            messagesRef.orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
+                // Wis bestaande berichten bij elke update
+                messagesDiv.innerHTML = '';
+                
+                // Loop door alle berichten
+                snapshot.forEach((childSnapshot) => {
+                    const message = childSnapshot.val();
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message-item';
+                    
+                    const time = new Date(message.timestamp).toLocaleTimeString();
+                    
+                    messageElement.innerHTML = `
+                        <span class="message-username">${message.username}</span>
+                        <span class="message-time">${time}</span>
+                        <div class="message-text">${message.text}</div>
+                    `;
+                    
+                    messagesDiv.appendChild(messageElement);
+                });
+                
+                // Scroll naar het laatste bericht
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+
+            if (message) {
+                const messagesRef = database.ref('messages');
+                const newMessage = {
+                    username: username,
+                    text: message,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    uid: auth.currentUser.uid
+                };
+
+                messagesRef.push(newMessage)
+                    .then(() => {
+                        messageInput.value = '';
+                    })
+                    .catch((error) => {
+                        console.error('Error sending message:', error);
+                        alert('Bericht kon niet worden verzonden');
+                    });
+            }
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function logout() {
+            auth.signOut()
+                .then(() => {
+                    window.location.href = 'login.html';
+                })
+                .catch((error) => {
+                    console.error('Uitloggen mislukt:', error);
+                    alert('Uitloggen mislukt: ' + error.message);
+                });
+        }
+    </script>
+</body>
+</html> 
