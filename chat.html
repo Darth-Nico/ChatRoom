@@ -4,11 +4,30 @@
     <meta charset="UTF-8">
     <title>SnapCat</title>
     <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #000000;
+            --container-bg: #ffffff;
+            --primary-color: #1877f2;
+            --hover-color: #166fe5;
+            --border-color: #ddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --text-color: #ffffff;
+            --container-bg: #242526;
+            --primary-color: #2374e1;
+            --hover-color: #2d83f3;
+            --border-color: #3a3b3c;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f2f5;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
 
         .header {
@@ -16,7 +35,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 20px;
-            background-color: white;
+            background-color: var(--container-bg);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
@@ -43,7 +62,8 @@
         }
 
         .welcome-message {
-            background-color: white;
+            background-color: var(--container-bg);
+            color: var(--text-color);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -51,20 +71,21 @@
         }
 
         .user-info {
-            color: #666;
+            color: var(--text-color);
             font-size: 14px;
             margin-top: 10px;
         }
 
         .chat-container {
-            background-color: white;
+            background-color: var(--container-bg);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            height: 400px;
+            height: calc(100vh - 100px);
             display: flex;
             flex-direction: column;
+            border: none;
         }
 
         .messages {
@@ -72,7 +93,7 @@
             overflow-y: auto;
             margin-bottom: 15px;
             padding: 10px;
-            background: #f8f9fa;
+            background: var(--bg-color);
             border-radius: 4px;
         }
 
@@ -80,8 +101,8 @@
             margin-bottom: 10px;
             padding: 8px;
             border-radius: 4px;
-            background: white;
-            border: 1px solid #e9ecef;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
         }
 
         .message-username {
@@ -96,7 +117,8 @@
         }
 
         .message-time {
-            color: #666;
+            color: var(--text-color);
+            opacity: 0.7;
             font-size: 12px;
         }
 
@@ -113,9 +135,11 @@
         .message-input {
             flex-grow: 1;
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
+            background: var(--container-bg);
+            color: var(--text-color);
         }
 
         .send-button {
@@ -163,7 +187,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
+            background-color: var(--container-bg);
+            color: var(--text-color);
             padding: 20px;
             border-radius: 8px;
             width: 300px;
@@ -175,7 +200,7 @@
             top: 10px;
             cursor: pointer;
             font-size: 20px;
-            color: #666;
+            color: var(--text-color);
         }
 
         .chat-container {
@@ -183,8 +208,8 @@
         }
 
         .message-item.own-message {
-            background-color: #e7f3ff;
-            border-color: #cce4ff;
+            background-color: var(--message-own-bg);
+            color: white;
             margin-left: auto;
             margin-right: 0;
             width: 80%;
@@ -280,10 +305,67 @@
         .tab-content.active {
             display: block;
         }
+
+        .message-input:focus {
+            border-color: #1877f2;
+            outline: none;
+        }
+
+        [data-theme="dark"] {
+            --message-bg: #3a3b3c;
+            --message-own-bg: #2374e1;
+            --message-border: #4a4b4c;
+        }
+
+        .message-item {
+            background: var(--container-bg);
+            border-color: var(--border-color);
+        }
+
+        .message-item.own-message {
+            background-color: var(--message-own-bg);
+            color: white;
+        }
+
+        .messages {
+            background: var(--bg-color);
+        }
+
+        .message-input {
+            background: var(--container-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        .header {
+            background: var(--container-bg);
+        }
+
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 20px;
+            background: var(--container-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-switch i {
+            color: var(--text-color);
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <div class="theme-switch" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </div>
+
     <div class="header">
         <div style="display: flex; align-items: center; gap: 15px;">
             <div class="profile-icon" onclick="togglePhotoSelector()">
@@ -795,6 +877,23 @@ const firebaseConfig = {
                     });
             }
         }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update icon
+            const icon = document.querySelector('.theme-switch i');
+            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const icon = document.querySelector('.theme-switch i');
+        icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
     </script>
 </body>
 </html> 
