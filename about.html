@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Over SnapCat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #000000;
+            --container-bg: #ffffff;
+            --primary-color: #1877f2;
+            --hover-color: #166fe5;
+            --border-color: #ddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --text-color: #ffffff;
+            --container-bg: #242526;
+            --primary-color: #2374e1;
+            --hover-color: #2d83f3;
+            --border-color: #3a3b3c;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .banner-container {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background: var(--primary-color);
+        }
+
+        .photo-banner {
+            display: flex;
+            animation: slide 60s linear infinite;
+            height: 100%;
+        }
+
+        .banner-photo {
+            height: 200px;
+            min-width: 250px;
+            object-fit: cover;
+            margin-right: 2px;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: -50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-title {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .description {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature {
+            padding: 20px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .feature i {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background-color: var(--hover-color);
+        }
+
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 20px;
+            background: var(--container-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        .theme-switch i {
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                margin: 10px;
+                margin-top: -30px;
+            }
+
+            .app-title {
+                font-size: 36px;
+            }
+
+            .banner-container {
+                height: 150px;
+            }
+
+            .banner-photo {
+                height: 150px;
+                min-width: 200px;
+            }
+        }
+
+        .tech-stack {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .tech-stack h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-item {
+            padding: 20px;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tech-item h4 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .tech-item ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tech-item li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .tech-item li:before {
+            content: "•";
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tech-item {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-switch" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="banner-container">
+        <div class="photo-banner" id="photoBanner">
+            <!-- Foto's worden hier dynamisch toegevoegd -->
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1 class="app-title" onclick="window.location.href='index.html'">SnapCat</h1>
+            <p>Een real-time chat applicatie met Cat API integratie</p>
+        </div>
+
+        <div class="description">
+            <p>SnapCat is een moderne web applicatie die real-time communicatie demonstreert met Firebase Realtime Database, 
+               gecombineerd met externe API integratie via TheCatAPI. Deze applicatie toont de implementatie van verschillende 
+               moderne web development concepten en technologieën.</p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-bolt"></i>
+                <h3>Real-time Database</h3>
+                <p>Firebase Realtime Database voor instant message synchronisatie</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Authenticatie</h3>
+                <p>Veilige gebruikersauthenticatie via Firebase Auth</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-code"></i>
+                <h3>API Integratie</h3>
+                <p>TheCatAPI voor dynamische profielfoto's</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-paint-brush"></i>
+                <h3>Modern Design</h3>
+                <p>Responsive UI met light/dark mode support</p>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <h2>Technische Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Frontend</h4>
+                    <ul>
+                        <li>HTML5 & CSS3</li>
+                        <li>Vanilla JavaScript</li>
+                        <li>Responsive Design</li>
+                        <li>CSS Variables voor theming</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h4>Backend & Database</h4>
+                    <ul>
+                        <li>Firebase Realtime Database</li>
+                        <li>Firebase Authentication</li>
+                        <li>Real-time data synchronisatie</li>
+                        <li>User state management</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Real-time messaging</li>
+                        <li>User authentication</li>
+                        <li>External API integration</li>
+                        <li>Dark mode support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="index.html" class="back-button">Terug naar Login</a>
+        </div>
+    </div>
+
+    <script>
+        async function loadBannerPhotos() {
+            try {
+                const response = await fetch('https://api.thecatapi.com/v1/images/search?limit=15', {
+                    headers: {
+                        'x-api-key': 'live_f1NU151eg3nwl52RTLJOPSdycx0Dgpzpun9YIw197tPdL8RIce6cWaUQz2EZXehA'
+                    }
+                });
+                const data = await response.json();
+                
+                const banner = document.getElementById('photoBanner');
+                
+                data.forEach(photo => {
+                    const img = document.createElement('img');
+                    img.src = photo.url;
+                    img.className = 'banner-photo';
+                    img.alt = 'Cat photo';
+                    banner.appendChild(img);
+                });
+                
+                data.forEach(photo => {
+                    const img = document.createElement('img');
+                    img.src = photo.url;
+                    img.className = 'banner-photo';
+                    img.alt = 'Cat photo';
+                    banner.appendChild(img);
+                });
+            } catch (error) {
+                console.error('Error loading banner photos:', error);
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const icon = document.querySelector('.theme-switch i');
+            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const icon = document.querySelector('.theme-switch i');
+        icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+        loadBannerPhotos();
+    </script>
+</body>
+</html> 
