@@ -749,6 +749,68 @@
                 opacity: 0.7;
             }
         }
+
+        .message-reactions {
+            margin-top: 4px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .reaction-button {
+            background: none;
+            border: none;
+            padding: 2px 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .reaction-button:hover {
+            opacity: 1;
+        }
+
+        .emoji-picker {
+            position: absolute;
+            background: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 8px;
+            display: none;
+            z-index: 1000;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+        }
+
+        .emoji-option {
+            padding: 5px;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .emoji-option:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .reaction-count {
+            background: var(--bg-color);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .reaction-count:hover {
+            background: var(--border-color);
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -1264,6 +1326,12 @@ const firebaseConfig = {
                             <span class="message-time">${time}</span>
                             <div class="message-text">${formattedText}</div>
                             ${message.edited ? '<span class="edited-mark"><i class="fas fa-pen-fancy"></i> bewerkt</span>' : ''}
+                            <div class="message-reactions" id="reactions-${childSnapshot.key}">
+                                ${renderReactions(message.reactions || {})}
+                                <button class="reaction-button" onclick="showEmojiPicker('${childSnapshot.key}', event)">
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                            </div>
                             ${isOwnMessage ? `
                                 <div class="message-actions">
                                     <button class="edit-btn" onclick="editMessage('${childSnapshot.key}')">
@@ -1593,6 +1661,86 @@ const firebaseConfig = {
         window.addEventListener('focus', () => {
             flashTitle(false);
         });
+
+        function renderReactions(reactions) {
+            if (!reactions) return '';
+            
+            let html = '';
+            Object.entries(reactions).forEach(([emoji, users]) => {
+                if (Object.keys(users).length > 0) {
+                    html += `
+                        <span class="reaction-count" onclick="showReactors('${emoji}', ${JSON.stringify(users)})">
+                            ${emoji} ${Object.keys(users).length}
+                        </span>
+                    `;
+                }
+            });
+            return html;
+        }
+
+        const EMOJI_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '😡', '🎉', '👏', '🤔', '👌', '🔥', '❤️‍🔥'];
+
+        function showEmojiPicker(messageId, event) {
+            const existingPicker = document.querySelector('.emoji-picker');
+            if (existingPicker) existingPicker.remove();
+
+            const picker = document.createElement('div');
+            picker.className = 'emoji-picker';
+            
+            EMOJI_OPTIONS.forEach(emoji => {
+                const option = document.createElement('div');
+                option.className = 'emoji-option';
+                option.textContent = emoji;
+                option.onclick = () => addReaction(messageId, emoji);
+                picker.appendChild(option);
+            });
+
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            
+            picker.style.position = 'absolute';
+            picker.style.left = `${rect.left}px`;
+            picker.style.top = `${rect.bottom + 5}px`; // 5px onder de knop
+            document.body.appendChild(picker);
+            picker.style.display = 'grid';
+
+            // Sluit picker wanneer ergens anders wordt geklikt
+            document.addEventListener('click', function closeEmojiPicker(e) {
+                if (!picker.contains(e.target) && !button.contains(e.target)) {
+                    picker.remove();
+                    document.removeEventListener('click', closeEmojiPicker);
+                }
+            });
+        }
+
+        function addReaction(messageId, emoji) {
+            const messageRef = database.ref(`messages/${messageId}/reactions/${emoji}/${auth.currentUser.uid}`);
+            messageRef.once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    // Verwijder reactie als deze al bestaat
+                    messageRef.remove();
+                } else {
+                    // Voeg reactie toe
+                    messageRef.set({
+                        username: username,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            });
+        }
+
+        function showReactors(emoji, users) {
+            const userList = Object.entries(users)
+                .map(([_, userData]) => userData.username)
+                .join(', ');
+            
+            showCustomModal(
+                'Reacties',
+                `${emoji} van: ${userList}`,
+                null,
+                false
+            );
+        }
     </script>
 </body>
 </html> 
