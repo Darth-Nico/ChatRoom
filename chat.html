@@ -535,11 +535,11 @@
     </div>
 
     <div class="dropdown-menu" id="userDropdown">
-        <div class="dropdown-item" onclick="togglePhotoSelector()">
+        <div class="dropdown-item" onclick="showProfilePhotoChange()">
             <i class="fas fa-camera"></i>
             Profielfoto wijzigen
         </div>
-        <div class="dropdown-item" onclick="showAccountInfo()">
+        <div class="dropdown-item" onclick="showAccountInformation()">
             <i class="fas fa-user"></i>
             Account informatie
         </div>
@@ -1187,10 +1187,26 @@ const firebaseConfig = {
             dropdown.classList.toggle('show');
         }
 
-        function showAccountInfo() {
+        function showProfilePhotoChange() {
             toggleDropdown();
             document.getElementById('photoSelectorModal').style.display = 'block';
-            switchTab('info');
+            document.getElementById('photoTab').style.display = 'block';
+            document.getElementById('infoTab').style.display = 'none';
+            document.querySelector('.modal-tabs').style.display = 'none';
+            loadNewCat();
+        }
+
+        function showAccountInformation() {
+            toggleDropdown();
+            document.getElementById('photoSelectorModal').style.display = 'block';
+            document.getElementById('photoTab').style.display = 'none';
+            document.getElementById('infoTab').style.display = 'block';
+            document.querySelector('.modal-tabs').style.display = 'none';
+            
+            // Update account info
+            document.getElementById('profileUsername').textContent = username;
+            document.getElementById('profileEmail').textContent = auth.currentUser.email;
+            document.getElementById('profileId').textContent = auth.currentUser.uid;
         }
 
         document.addEventListener('click', function(event) {
