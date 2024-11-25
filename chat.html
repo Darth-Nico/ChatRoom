@@ -741,6 +741,7 @@ const firebaseConfig = {
                 window.location.href = 'index.html';
             } else {
                 username = localStorage.getItem('username_' + user.uid) || 'Anoniem';
+                requestNotificationPermission();
                 document.getElementById('headerUsername').textContent = username;
                 const userInfo = document.getElementById('userInfo');
                 
@@ -766,6 +767,42 @@ const firebaseConfig = {
             }
         });
 
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission();
+            }
+        }
+
+        function sendNotification(username, message) {
+            if ('Notification' in window && Notification.permission === 'granted' && !document.hasFocus()) {
+                const notification = new Notification('SnapCat - Nieuwe mention', {
+                    body: `${username} heeft je genoemd: ${message}`,
+                    icon: '/favicon.ico'  // Voeg een favicon toe aan je project als je dit wilt gebruiken
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        }
+
+        let titleInterval;
+        let originalTitle = document.title;
+
+        function flashTitle(isFlashing) {
+            if (isFlashing) {
+                let toggle = false;
+                titleInterval = setInterval(() => {
+                    document.title = toggle ? 'Pinged!' : originalTitle;
+                    toggle = !toggle;
+                }, 1000); // Wissel elke seconde
+            } else {
+                clearInterval(titleInterval);
+                document.title = originalTitle;
+            }
+        }
+
         function formatMessageWithMentions(text, currentUsername) {
             const formattedText = text.replace(/@(\w+)/g, (match, username) => {
                 return `<span class="mention">@${username}</span>`;
@@ -773,6 +810,10 @@ const firebaseConfig = {
             
             const currentUserMention = `@${currentUsername}`;
             if (text.includes(currentUserMention)) {
+                sendNotification(username, text);
+                if (!document.hasFocus()) {
+                    flashTitle(true);
+                }
                 return `<div class="mentioned">${formattedText}</div>`;
             }
             
@@ -897,6 +938,10 @@ const firebaseConfig = {
         }
 
         function loadMessages() {
+            if (document.hasFocus()) {
+                // Reset unread pings
+            }
+            
             if (window.currentMessageRef) {
                 window.currentMessageRef.off();
             }
@@ -1251,6 +1296,10 @@ const firebaseConfig = {
             if (!userHeader.contains(event.target) && dropdown.classList.contains('show')) {
                 dropdown.classList.remove('show');
             }
+        });
+
+        window.addEventListener('focus', () => {
+            flashTitle(false);
         });
     </script>
 </body>
