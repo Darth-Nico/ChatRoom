@@ -806,10 +806,23 @@
             gap: 4px;
             cursor: pointer;
             border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
         }
 
         .reaction-count:hover {
             background: var(--border-color);
+            transform: scale(1.05);
+        }
+
+        .user-reacted {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .user-reacted:hover {
+            background: var(--hover-color);
+            border-color: var(--hover-color);
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -1327,7 +1340,7 @@ const firebaseConfig = {
                             <div class="message-text">${formattedText}</div>
                             ${message.edited ? '<span class="edited-mark"><i class="fas fa-pen-fancy"></i> bewerkt</span>' : ''}
                             <div class="message-reactions" id="reactions-${childSnapshot.key}">
-                                ${renderReactions(message.reactions || {})}
+                                ${renderReactions(message.reactions || {}, childSnapshot.key)}
                                 <button class="reaction-button" onclick="showEmojiPicker('${childSnapshot.key}', event)">
                                     <i class="fas fa-plus-circle"></i>
                                 </button>
@@ -1662,14 +1675,17 @@ const firebaseConfig = {
             flashTitle(false);
         });
 
-        function renderReactions(reactions) {
+        function renderReactions(reactions, messageId) {
             if (!reactions) return '';
             
             let html = '';
             Object.entries(reactions).forEach(([emoji, users]) => {
                 if (Object.keys(users).length > 0) {
+                    const hasReacted = users[auth.currentUser.uid] !== undefined;
                     html += `
-                        <span class="reaction-count" onclick="showReactors('${emoji}', ${JSON.stringify(users)})">
+                        <span class="reaction-count ${hasReacted ? 'user-reacted' : ''}" 
+                              onclick="addReaction('${messageId}', '${emoji}')"
+                              title="Klik om te reageren">
                             ${emoji} ${Object.keys(users).length}
                         </span>
                     `;
