@@ -37,18 +37,24 @@
             overflow-x: hidden;
         }
         .container {
-            max-width: 800px;
+            width: 100%;
+            max-width: 450px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 25px;
             background-color: var(--container-bg);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-top: -50px;
             position: relative;
             z-index: 1;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .form-group {
-            margin-bottom: 20px;
+            width: 100%;
+            margin-bottom: 12px;
         }
         input {
             width: 100%;
@@ -67,14 +73,15 @@
         }
         button {
             width: 100%;
-            padding: 12px;
+            height: 44px;
             background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-size: 16px;
+            font-weight: 600;
             transition: background-color 0.3s;
         }
         button:hover {
@@ -85,6 +92,13 @@
             color: var(--primary-color);
             cursor: pointer;
             text-decoration: underline;
+            font-size: 15px;
+            margin-top: 8px;
+            padding: 5px 0;
+            font-weight: 500;
+        }
+        .toggle-form:hover {
+            text-decoration: underline;
         }
         .message {
             padding: 12px;
@@ -93,6 +107,7 @@
             text-align: center;
             display: none;
             border: 1px solid transparent;
+            animation: fadeIn 0.3s ease;
         }
         .success {
             background-color: #d4edda;
@@ -121,12 +136,12 @@
         }
         .tooltip .tooltiptext {
             visibility: hidden;
-            width: 200px;
+            width: 220px;
             background-color: #555;
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 5px;
+            padding: 10px;
             position: absolute;
             z-index: 1;
             bottom: 125%;
@@ -134,25 +149,29 @@
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
+            font-size: 15px;
         }
         .tooltip:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
         }
         .app-title {
-            font-size: 48px;
+            font-size: 46px;
             color: var(--primary-color);
             margin-bottom: 10px;
             text-align: center;
             cursor: pointer;
+            font-weight: bold;
         }
         .forgot-password {
             text-align: center;
             color: var(--primary-color);
             cursor: pointer;
-            font-size: 14px;
-            margin-bottom: 10px;
+            font-size: 15px;
+            margin: 8px 0;
+            padding: 5px 0;
             text-decoration: underline;
+            font-weight: 500;
         }
         .forgot-password:hover {
             text-decoration: underline;
@@ -222,12 +241,12 @@
 
             .app-description {
                 font-size: 14px;
-                margin-bottom: 30px;
+                margin-bottom: 20px;
                 padding: 0 20px;
             }
 
             .form-group {
-                margin-bottom: 15px;
+                margin-bottom: 12px;
             }
 
             input {
@@ -314,6 +333,100 @@
             -webkit-user-select: none;
             user-select: none;
         }
+
+        #loginForm,
+        #registerForm {
+            width: 100%;
+            max-width: 220px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            height: 34px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        button,
+        .disabled-button {
+            width: 100%;
+            height: 44px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+
+        .app-title,
+        .app-description {
+            width: 100%;
+            text-align: center;
+        }
+
+        .tooltip,
+        .forgot-password,
+        .toggle-form {
+            width: 100%;
+            max-width: 250px;
+            font-size: 13px;
+        }
+
+        button:hover:not(.disabled-button) {
+            background-color: var(--hover-color);
+            opacity: 1;
+            transform: none;
+        }
+
+        .forgot-password:hover,
+        .toggle-form:hover {
+            color: var(--hover-color);
+            opacity: 1;
+            transform: none;
+            text-decoration: underline;
+        }
+
+        button,
+        .forgot-password,
+        .toggle-form {
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .error-input {
+            animation: shake 0.8s ease;
+            border-color: #dc3545 !important;
+            background-color: rgba(220, 53, 69, 0.05) !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .message.fade-out {
+            animation: fadeOut 0.3s ease forwards;
+        }
     </style>
 </head>
 <body>
@@ -329,7 +442,7 @@
         <div id="messageContainer" class="message"></div>
         <div id="loginForm">
             <h1 class="app-title" onclick="window.location.href='about.html'">SnapCat</h1>
-            <p class="app-description">Log in om te chatten met andere kattenliefhebbers</p>
+            <p class="app-description">Log In</p>
             <div class="form-group">
                 <input type="email" id="loginEmail" placeholder="E-mail">
             </div>
@@ -347,7 +460,7 @@
 
         <div id="registerForm" style="display: none;">
             <h1 class="app-title" onclick="window.location.href='about.html'">SnapCat</h1>
-            <p class="app-description">Maak een nieuw account aan</p>
+            <p class="app-description">Registreer</p>
             <div class="form-group">
                 <input type="text" id="registerUsername" placeholder="Gebruikersnaam">
             </div>
@@ -396,9 +509,20 @@
             messageContainer.className = `message ${type}`;
             messageContainer.style.display = 'block';
             
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageContainer.style.display = 'none';
+            if (window.messageTimeout) {
+                clearTimeout(window.messageTimeout);
+            }
+            
+            if (type === 'error') {
+                window.messageTimeout = setTimeout(() => {
+                    messageContainer.classList.add('fade-out');
+                    document.querySelectorAll('.error-input').forEach(element => {
+                        element.classList.remove('error-input');
+                    });
+                    setTimeout(() => {
+                        messageContainer.style.display = 'none';
+                        messageContainer.classList.remove('fade-out');
+                    }, 300);
                 }, 5000);
             }
         }
@@ -409,11 +533,18 @@
         }
 
         function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            emailInput.classList.remove('error-input');
+            passwordInput.classList.remove('error-input');
 
             if (!email || !password) {
                 showMessage('Vul alle velden in', 'error');
+                if (!email) emailInput.classList.add('error-input');
+                if (!password) passwordInput.classList.add('error-input');
                 return;
             }
 
@@ -427,7 +558,21 @@
                     }, 1000);
                 })
                 .catch((error) => {
-                    showMessage('Ongeldige inloggegevens', 'error');
+                    emailInput.classList.add('error-input');
+                    passwordInput.classList.add('error-input');
+                    
+                    let errorMessage = 'Ongeldige inloggegevens';
+                    if (error.code === 'auth/user-not-found') {
+                        errorMessage = 'Dit e-mailadres is niet bekend';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMessage = 'Onjuist wachtwoord';
+                    }
+                    showMessage(errorMessage, 'error');
+
+                    setTimeout(() => {
+                        emailInput.classList.remove('error-input');
+                        passwordInput.classList.remove('error-input');
+                    }, 800);
                 });
         }
 
@@ -447,30 +592,38 @@
         }
 
         async function register() {
-            const username = document.getElementById('registerUsername').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
+            const usernameInput = document.getElementById('registerUsername');
+            const emailInput = document.getElementById('registerEmail');
+            const passwordInput = document.getElementById('registerPassword');
+            const username = usernameInput.value;
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            // Reset error states
+            usernameInput.classList.remove('error-input');
+            emailInput.classList.remove('error-input');
+            passwordInput.classList.remove('error-input');
 
             if (!username || !email || !password) {
                 showMessage('Vul alle velden in', 'error');
+                if (!username) usernameInput.classList.add('error-input');
+                if (!email) emailInput.classList.add('error-input');
+                if (!password) passwordInput.classList.add('error-input');
                 return;
             }
 
             if (password.length < 6) {
                 showMessage('Wachtwoord moet minimaal 6 tekens bevatten', 'error');
+                passwordInput.classList.add('error-input');
                 return;
             }
 
             showMessage('Bezig met registreren...', 'loading');
 
             try {
-                // Haal eerst een willekeurige kat foto op
                 const catPhotoUrl = await getRandomCatPhoto();
-                
-                // Maak dan het account aan
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 
-                // Sla gebruikersnaam en foto URL op
                 localStorage.setItem('username_' + userCredential.user.uid, username);
                 localStorage.setItem('userPhotoUrl_' + userCredential.user.uid, catPhotoUrl);
                 
@@ -479,7 +632,17 @@
                     window.location.href = 'chat.html';
                 }, 1000);
             } catch (error) {
-                showMessage('Dit e-mailadres kan niet worden gebruikt', 'error');
+                emailInput.classList.add('error-input');
+                let errorMessage = 'Dit e-mailadres kan niet worden gebruikt';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'Dit e-mailadres is al in gebruik';
+                }
+                showMessage(errorMessage, 'error');
+
+                // Verwijder error class na timeout
+                setTimeout(() => {
+                    emailInput.classList.remove('error-input');
+                }, 5000); // Zelfde timing als de message timeout
             }
         }
 
@@ -596,6 +759,26 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
         const icon = document.querySelector('.theme-switch i');
         icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+        document.getElementById('loginEmail').addEventListener('input', function() {
+            this.classList.remove('error-input');
+        });
+
+        document.getElementById('loginPassword').addEventListener('input', function() {
+            this.classList.remove('error-input');
+        });
+
+        document.getElementById('registerUsername').addEventListener('input', function() {
+            this.classList.remove('error-input');
+        });
+
+        document.getElementById('registerEmail').addEventListener('input', function() {
+            this.classList.remove('error-input');
+        });
+
+        document.getElementById('registerPassword').addEventListener('input', function() {
+            this.classList.remove('error-input');
+        });
     </script>
 </body>
 </html> 

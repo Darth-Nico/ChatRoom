@@ -1024,15 +1024,54 @@ const firebaseConfig = {
             return formattedText;
         }
 
+        // Voeg deze constante toe aan het begin van het script gedeelte
+        const FORBIDDEN_WORDS = [
+            'kanker', 'kkr', 'kk', 'tyfus', 'tf', 
+            'homo', 'gay', 'flikker', 
+            'neger', 'nigger', 'nigga',
+            'kut', 'fuck', 'fck', 'shit', 
+            'tering', 'godver', 'gvd',
+            'hoer', 'slet', 'bitch',
+            // Voeg hier meer woorden toe indien nodig
+        ];
+
+        // Voeg deze functie toe om berichten te controleren
+        function containsForbiddenWords(message) {
+            const words = message.toLowerCase().split(/\s+/);
+            const foundWords = FORBIDDEN_WORDS.filter(forbidden => 
+                words.some(word => 
+                    word.includes(forbidden) || 
+                    // Check voor variaties met getallen/symbolen
+                    word.replace(/[0-9@$]/g, '').includes(forbidden)
+                )
+            );
+            
+            return foundWords.length > 0 ? foundWords : false;
+        }
+
+        // Wijzig de sendMessage functie
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
 
             if (message) {
-                // Check for /cat command
+                // Check voor /cat command
                 if (message.toLowerCase() === '/cat') {
                     sendCatPhoto();
                     messageInput.value = '';
+                    return;
+                }
+
+                // Controleer op verboden woorden
+                const foundForbiddenWords = containsForbiddenWords(message);
+                if (foundForbiddenWords) {
+                    showCustomModal(
+                        'Waarschuwing', 
+                        `Je bericht bevat ongepaste woorden en kan niet worden verzonden. 
+                        Houd de chat vriendelijk en respectvol.`, 
+                        null, 
+                        false
+                    );
                     return;
                 }
 
@@ -1242,6 +1281,19 @@ const firebaseConfig = {
             const newText = input.value.trim();
             
             if (newText) {
+                // Controleer op verboden woorden
+                const foundForbiddenWords = containsForbiddenWords(newText);
+                if (foundForbiddenWords) {
+                    showCustomModal(
+                        'Waarschuwing', 
+                        `Je bewerkte bericht bevat ongepaste woorden en kan niet worden opgeslagen. 
+                        Houd de chat vriendelijk en respectvol.`, 
+                        null, 
+                        false
+                    );
+                    return;
+                }
+
                 const messageRef = database.ref(`messages/${messageId}`);
                 messageRef.update({
                     text: newText,
