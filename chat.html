@@ -347,9 +347,6 @@
         }
 
         .theme-switch {
-            position: fixed;
-            top: 20px;
-            right: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -357,7 +354,6 @@
             padding: 8px;
             border-radius: 20px;
             background: var(--container-bg);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .theme-switch i {
@@ -441,25 +437,121 @@
         [data-theme="dark"] .message-item.own-message .message-username {
             color: var(--message-own-text);
         }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .user-header:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .user-header:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .username-display {
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 5px 0;
+        }
+
+        .dropdown-item.danger {
+            color: #dc3545;
+        }
+
+        .dropdown-item.danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <div class="theme-switch" onclick="toggleTheme()">
-        <i class="fas fa-moon"></i>
-    </div>
-
     <div class="header">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="profile-icon" onclick="togglePhotoSelector()">
+        <div class="user-header" onclick="toggleDropdown()">
+            <div class="profile-icon">
                 <img src="${localStorage.getItem('userPhotoUrl_' + auth.currentUser.uid) || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}" 
                      alt="Profile" 
                      style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             </div>
-            <h1 onclick="window.location.href='about.html'" style="cursor: pointer;">SnapCat</h1>
+            <span class="username-display" id="headerUsername">Loading...</span>
         </div>
-        <div style="display: flex; align-items: center;">
-            <button class="logout-btn" onclick="logout()">Uitloggen</button>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <h1 onclick="window.location.href='about.html'" style="cursor: pointer;">SnapCat</h1>
+            <div class="theme-switch" onclick="toggleTheme()" style="position: static; box-shadow: none;">
+                <i class="fas fa-moon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="dropdown-menu" id="userDropdown">
+        <div class="dropdown-item" onclick="togglePhotoSelector()">
+            <i class="fas fa-camera"></i>
+            Profielfoto wijzigen
+        </div>
+        <div class="dropdown-item" onclick="showAccountInfo()">
+            <i class="fas fa-user"></i>
+            Account informatie
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Uitloggen
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item danger" onclick="confirmDeleteAccount()">
+            <i class="fas fa-trash-alt"></i>
+            Account verwijderen
         </div>
     </div>
 
@@ -543,6 +635,31 @@
         </div>
     </div>
 
+    <div id="customModal" class="user-info-modal" style="display: none;">
+        <div class="modal-content" style="width: 300px;">
+            <span class="close-modal" onclick="closeCustomModal()">&times;</span>
+            <h2 id="modalTitle" style="margin-top: 0;">Bericht</h2>
+            <p id="modalMessage" style="margin: 20px 0;"></p>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="modalCancelBtn" onclick="closeCustomModal()" class="logout-btn" style="margin: 0; width: auto;">Annuleren</button>
+                <button id="modalConfirmBtn" class="send-button" style="margin: 0; width: auto;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="user-info-modal" style="display: none;">
+        <div class="modal-content" style="width: 300px;">
+            <span class="close-modal" onclick="closePasswordModal()">&times;</span>
+            <h2 style="margin-top: 0;">Account Verwijderen</h2>
+            <p style="margin: 20px 0;">Voer je wachtwoord in om je account te verwijderen:</p>
+            <input type="password" id="deleteAccountPassword" class="message-input" style="margin-bottom: 20px;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="closePasswordModal()" class="logout-btn" style="margin: 0; width: auto;">Annuleren</button>
+                <button onclick="deleteAccount()" class="send-button" style="margin: 0; width: auto;">Verwijderen</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -592,6 +709,7 @@ const firebaseConfig = {
                 window.location.href = 'index.html';
             } else {
                 username = localStorage.getItem('username_' + user.uid) || 'Anoniem';
+                document.getElementById('headerUsername').textContent = username;
                 const userInfo = document.getElementById('userInfo');
                 
                 let photoUrl = localStorage.getItem('userPhotoUrl_' + user.uid);
@@ -655,7 +773,7 @@ const firebaseConfig = {
                     })
                     .catch((error) => {
                         console.error('Error sending message:', error);
-                        alert('Bericht kon niet worden verzonden');
+                        showCustomModal('Fout', 'Bericht kon niet worden verzonden');
                     });
             }
         }
@@ -849,7 +967,7 @@ const firebaseConfig = {
                     messageElement.classList.remove('editing');
                 }).catch((error) => {
                     console.error('Error updating message:', error);
-                    alert('Bericht kon niet worden bijgewerkt');
+                    showCustomModal('Fout', 'Bericht kon niet worden bijgewerkt');
                 });
             }
         }
@@ -861,17 +979,22 @@ const firebaseConfig = {
         }
 
         function deleteMessage(messageId) {
-            if (confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) {
-                const messageRef = database.ref(`messages/${messageId}`);
-                messageRef.remove()
-                    .then(() => {
-                        console.log('Message deleted successfully');
-                    })
-                    .catch((error) => {
-                        console.error('Error deleting message:', error);
-                        alert('Bericht kon niet worden verwijderd');
-                    });
-            }
+            showCustomModal(
+                'Bericht verwijderen',
+                'Weet je zeker dat je dit bericht wilt verwijderen?',
+                () => {
+                    const messageRef = database.ref(`messages/${messageId}`);
+                    messageRef.remove()
+                        .then(() => {
+                            showCustomModal('Succes', 'Bericht is verwijderd');
+                        })
+                        .catch((error) => {
+                            console.error('Error deleting message:', error);
+                            showCustomModal('Fout', 'Bericht kon niet worden verwijderd');
+                        });
+                },
+                true
+            );
         }
 
         let currentCatUrl = '';
@@ -943,41 +1066,49 @@ const firebaseConfig = {
         }
 
         function confirmDeleteAccount() {
-            const password = prompt("Voer je wachtwoord in om je account te verwijderen:");
-            
-            if (password) {
-                const user = auth.currentUser;
-                const credential = firebase.auth.EmailAuthProvider.credential(
-                    user.email,
-                    password
-                );
+            document.getElementById('deleteAccountPassword').value = ''; // Clear previous input
+            document.getElementById('passwordModal').style.display = 'block';
+        }
 
-                // Herverifieer de gebruiker
-                user.reauthenticateWithCredential(credential)
-                    .then(() => {
-                        // Verwijder gebruikersdata
-                        const userId = user.uid;
-                        
-                        // Verwijder localStorage items
-                        localStorage.removeItem('username_' + userId);
-                        localStorage.removeItem('userPhotoUrl_' + userId);
-                        
-                        // Verwijder het account
-                        return user.delete();
-                    })
-                    .then(() => {
-                        alert('Je account is succesvol verwijderd');
-                        window.location.href = 'index.html';
-                    })
-                    .catch((error) => {
-                        if (error.code === 'auth/wrong-password') {
-                            alert('Onjuist wachtwoord');
-                        } else {
-                            console.error('Error deleting account:', error);
-                            alert('Er is iets misgegaan bij het verwijderen van je account');
-                        }
-                    });
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function deleteAccount() {
+            const password = document.getElementById('deleteAccountPassword').value;
+            
+            if (!password) {
+                showCustomModal('Fout', 'Voer een wachtwoord in');
+                return;
             }
+
+            const user = auth.currentUser;
+            const credential = firebase.auth.EmailAuthProvider.credential(
+                user.email,
+                password
+            );
+
+            user.reauthenticateWithCredential(credential)
+                .then(() => {
+                    const userId = user.uid;
+                    localStorage.removeItem('username_' + userId);
+                    localStorage.removeItem('userPhotoUrl_' + userId);
+                    return user.delete();
+                })
+                .then(() => {
+                    closePasswordModal();
+                    showCustomModal('Succes', 'Je account is succesvol verwijderd', () => {
+                        window.location.href = 'index.html';
+                    });
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/wrong-password') {
+                        showCustomModal('Fout', 'Onjuist wachtwoord');
+                    } else {
+                        console.error('Error deleting account:', error);
+                        showCustomModal('Fout', 'Er is iets misgegaan bij het verwijderen van je account');
+                    }
+                });
         }
 
         function toggleTheme() {
@@ -1020,9 +1151,56 @@ const firebaseConfig = {
                 await messagesRef.push(newMessage);
             } catch (error) {
                 console.error('Error sending cat photo:', error);
-                alert('Kon geen kattenfoto versturen');
+                showCustomModal('Fout', 'Kon geen kattenfoto versturen');
             }
         }
+
+        function showCustomModal(title, message, confirmCallback = null, showCancel = false) {
+            const modal = document.getElementById('customModal');
+            const titleEl = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const cancelBtn = document.getElementById('modalCancelBtn');
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            cancelBtn.style.display = showCancel ? 'block' : 'none';
+
+            if (confirmCallback) {
+                confirmBtn.onclick = () => {
+                    confirmCallback();
+                    closeCustomModal();
+                };
+            } else {
+                confirmBtn.onclick = closeCustomModal;
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeCustomModal() {
+            document.getElementById('customModal').style.display = 'none';
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function showAccountInfo() {
+            toggleDropdown();
+            document.getElementById('photoSelectorModal').style.display = 'block';
+            switchTab('info');
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userHeader = document.querySelector('.user-header');
+            
+            if (!userHeader.contains(event.target) && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html> 
