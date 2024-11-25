@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SnapCat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -25,20 +26,22 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             background-color: var(--bg-color);
             color: var(--text-color);
+            height: 100vh;
+            box-sizing: border-box;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
+            padding: 10px;
             background-color: var(--container-bg);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         h1 {
@@ -82,7 +85,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            height: calc(100vh - 100px);
+            height: calc(100vh - 80px);
             display: flex;
             flex-direction: column;
             border: none;
@@ -137,7 +140,7 @@
             padding: 8px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 16px;
             background: var(--container-bg);
             color: var(--text-color);
         }
@@ -357,6 +360,80 @@
 
         .theme-switch i {
             color: var(--text-color);
+        }
+
+        .container {
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .banner-container {
+            width: 100%;
+            height: 120px; /* Smaller on mobile */
+        }
+
+        .banner-photo {
+            height: 120px; /* Match container height */
+            min-width: 150px; /* Smaller on mobile */
+        }
+
+        /* Add media queries */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .app-title {
+                font-size: 28px;
+            }
+
+            input {
+                font-size: 16px; /* Better for mobile typing */
+            }
+
+            button {
+                padding: 12px; /* Larger touch target */
+            }
+
+            .theme-switch {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Photo selector adjustments */
+        #catPhoto {
+            width: 200px;
+            height: 200px;
+        }
+
+        .tab-button {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        /* Small phone adjustments */
+        @media (max-width: 320px) {
+            body {
+                padding: 5px;
+            }
+
+            .message-item {
+                max-width: 90%;
+            }
+
+            .input-container {
+                gap: 5px;
+            }
+
+            .send-button {
+                padding: 8px 12px;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
