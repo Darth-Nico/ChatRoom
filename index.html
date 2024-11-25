@@ -37,26 +37,29 @@
             overflow-x: hidden;
         }
         .container {
-            background: var(--container-bg);
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
+            background-color: var(--container-bg);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 300px;
-            margin: 0 auto;
+            margin-top: -50px;
+            position: relative;
+            z-index: 1;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         input {
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
+            padding: 12px;
+            margin-top: 8px;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
+            border-radius: 8px;
             box-sizing: border-box;
             background-color: var(--container-bg);
             color: var(--text-color);
+            font-size: 16px;
         }
         input:focus {
             outline: none;
@@ -64,13 +67,15 @@
         }
         button {
             width: 100%;
-            padding: 10px;
-            background-color: var(--primary-color); /* Facebook blue */
+            padding: 12px;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: var(--hover-color);
@@ -82,12 +87,12 @@
             text-decoration: underline;
         }
         .message {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
             text-align: center;
             display: none;
-            border: 1px solid var(--primary-color);
+            border: 1px solid transparent;
         }
         .success {
             background-color: #d4edda;
@@ -135,10 +140,10 @@
             opacity: 1;
         }
         .app-title {
-            text-align: center;
+            font-size: 48px;
             color: var(--primary-color);
-            font-size: 32px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            text-align: center;
             cursor: pointer;
         }
         .forgot-password {
@@ -154,11 +159,11 @@
         }
         .banner-container {
             width: 100%;
-            height: 120px;
+            height: 200px;
             overflow: hidden;
             position: relative;
             background: var(--primary-color);
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
         .photo-banner {
             display: flex;
@@ -166,8 +171,8 @@
             height: 100%;
         }
         .banner-photo {
-            height: 120px;
-            min-width: 150px;
+            height: 200px;
+            min-width: 250px;
             object-fit: cover;
             margin-right: 0;
         }
@@ -183,14 +188,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 20px;
-            background: var(--container-bg);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
 
         .theme-switch i {
@@ -233,8 +231,8 @@
     <div class="container">
         <div id="messageContainer" class="message"></div>
         <div id="loginForm">
-            <h2 class="app-title" onclick="window.location.href='about.html'" style="cursor: pointer;">SnapCat</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">Log in om te chatten</p>
+            <h1 class="app-title" onclick="window.location.href='about.html'">SnapCat</h1>
+            <p class="app-description">Log in om te chatten met andere kattenliefhebbers</p>
             <div class="form-group">
                 <input type="email" id="loginEmail" placeholder="E-mail">
             </div>
@@ -251,7 +249,8 @@
         </div>
 
         <div id="registerForm" style="display: none;">
-            <h2 class="app-title" onclick="window.location.href='about.html'" style="cursor: pointer;">SnapCat</h2>
+            <h1 class="app-title" onclick="window.location.href='about.html'">SnapCat</h1>
+            <p class="app-description">Maak een nieuw account aan</p>
             <div class="form-group">
                 <input type="text" id="registerUsername" placeholder="Gebruikersnaam">
             </div>

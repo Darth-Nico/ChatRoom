@@ -545,6 +545,210 @@
         .dropdown-item.danger:hover {
             background-color: rgba(220, 53, 69, 0.1);
         }
+
+        /* Basis mobiele aanpassingen */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: calc(100vh - 80px);
+                padding: 10px;
+                margin-bottom: 0;
+            }
+
+            .header {
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+
+            /* Maak de header compacter */
+            .user-header {
+                gap: 5px;
+            }
+
+            .profile-icon img {
+                width: 32px;
+                height: 32px;
+            }
+
+            .username-display {
+                font-size: 14px;
+            }
+
+            h1 {
+                font-size: 20px;
+                margin-left: 5px;
+            }
+
+            /* Verbeter berichtinvoer voor mobiel */
+            .input-container {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: var(--container-bg);
+                padding: 10px;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+                z-index: 100;
+            }
+
+            .message-input {
+                height: 40px;
+                font-size: 16px; /* Voorkom iOS zoom bij focus */
+                padding: 8px 12px;
+            }
+
+            .send-button {
+                min-width: 60px;
+                height: 40px;
+                padding: 0 15px;
+            }
+
+            /* Pas berichtencontainer aan voor mobiel */
+            .messages {
+                height: calc(100vh - 140px);
+                padding: 8px;
+                margin-bottom: 60px; /* Ruimte voor input container */
+            }
+
+            .message-item {
+                padding: 8px;
+                margin-bottom: 8px;
+                max-width: 85%;
+            }
+
+            .message-text {
+                font-size: 14px;
+            }
+
+            .message-time {
+                font-size: 11px;
+            }
+
+            .message-username {
+                font-size: 13px;
+            }
+
+            /* Verbeter modals voor mobiel */
+            .modal-content {
+                width: 90% !important;
+                max-width: 320px;
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .modal-content h2 {
+                font-size: 18px;
+            }
+
+            .modal-content input {
+                font-size: 16px;
+                padding: 8px;
+            }
+
+            /* Verbeter dropdown menu voor mobiel */
+            .dropdown-menu {
+                top: 50px;
+                left: 10px;
+                right: 10px;
+                min-width: unset;
+            }
+
+            .dropdown-item {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            /* Verbeter notificaties voor mobiel */
+            .mentioned {
+                padding: 6px;
+                font-size: 14px;
+            }
+
+            /* Verbeter typing indicator voor mobiel */
+            #typingIndicator {
+                font-size: 12px;
+                padding: 4px 8px;
+                margin-bottom: 5px;
+            }
+        }
+
+        /* Extra aanpassingen voor zeer kleine schermen */
+        @media (max-width: 320px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .message-item {
+                max-width: 90%;
+            }
+
+            .modal-content {
+                width: 95% !important;
+                padding: 10px;
+            }
+        }
+
+        /* Landscape modus aanpassingen */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .chat-container {
+                height: calc(100vh - 60px);
+            }
+
+            .header {
+                padding: 5px;
+            }
+
+            .messages {
+                height: calc(100vh - 120px);
+            }
+
+            .input-container {
+                padding: 5px;
+            }
+
+            .message-input {
+                height: 35px;
+            }
+        }
+
+        /* Verbeterde touch targets */
+        .message-actions button,
+        .dropdown-item,
+        .theme-switch,
+        .send-button {
+            min-height: 44px; /* Minimale hoogte voor touch targets */
+        }
+
+        /* Verbeterde scrolling */
+        .messages {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        /* Voorkom tekst selectie op mobiel */
+        .message-username,
+        .message-time,
+        .dropdown-item {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Verbeterde focus states voor touch interfaces */
+        .message-input:focus,
+        button:focus {
+            outline: none;
+        }
+
+        /* Verbeterde touch feedback */
+        @media (hover: none) {
+            .send-button:active,
+            .dropdown-item:active,
+            .message-actions button:active {
+                opacity: 0.7;
+            }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
