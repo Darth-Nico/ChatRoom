@@ -402,35 +402,67 @@
                 top: 10px;
                 right: 10px;
             }
-        }
 
-        /* Photo selector adjustments */
-        #catPhoto {
-            width: 200px;
-            height: 200px;
-        }
-
-        .tab-button {
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-
-        /* Small phone adjustments */
-        @media (max-width: 320px) {
-            body {
-                padding: 5px;
+            /* Modal adjustments for mobile */
+            .modal-content {
+                width: 90% !important; /* Override inline styles */
+                max-width: 320px;
+                margin: 0 10px;
+                padding: 15px;
             }
 
-            .message-item {
-                max-width: 90%;
+            /* Photo selector adjustments */
+            #catPhoto {
+                width: 200px !important;
+                height: 200px !important;
             }
 
-            .input-container {
-                gap: 5px;
+            /* Container for cat photo */
+            #photoTab > div {
+                width: 200px !important;
+                height: 200px !important;
             }
 
-            .send-button {
+            /* Button container adjustments */
+            .modal-content button {
                 padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            /* Input adjustments */
+            .modal-content input {
+                font-size: 16px;
+                padding: 8px;
+            }
+
+            /* Title adjustments */
+            .modal-content h2 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            /* Close button positioning */
+            .close-modal {
+                top: 8px;
+                right: 8px;
+            }
+        }
+
+        /* Even smaller screens */
+        @media (max-width: 320px) {
+            .modal-content {
+                width: 95% !important;
+                padding: 10px;
+            }
+
+            #catPhoto {
+                width: 180px !important;
+                height: 180px !important;
+            }
+
+            #photoTab > div {
+                width: 180px !important;
+                height: 180px !important;
             }
         }
 
@@ -893,6 +925,13 @@ const firebaseConfig = {
                             <span class="message-username">${message.username}</span>
                             <span class="message-time">${time}</span>
                             <div class="message-text">${message.text}</div>
+                            ${isOwnMessage ? `
+                                <div class="message-actions">
+                                    <button class="delete-btn" onclick="deleteMessage('${childSnapshot.key}')">
+                                        <i class="fas fa-trash"></i> Verwijderen
+                                    </button>
+                                </div>
+                            ` : ''}
                         `;
                     } else {
                         const formattedText = formatMessageWithMentions(message.text, username);
@@ -901,20 +940,16 @@ const firebaseConfig = {
                             <span class="message-time">${time}</span>
                             <div class="message-text">${formattedText}</div>
                             ${message.edited ? '<span class="edited-mark"><i class="fas fa-pen-fancy"></i> bewerkt</span>' : ''}
-                        `;
-                    }
-
-                    // Add edit/delete buttons only for non-image messages
-                    if (isOwnMessage && !message.isImage) {
-                        messageElement.innerHTML += `
-                            <div class="message-actions">
-                                <button class="edit-btn" onclick="editMessage('${childSnapshot.key}')">
-                                    <i class="fas fa-edit"></i> Bewerken
-                                </button>
-                                <button class="delete-btn" onclick="deleteMessage('${childSnapshot.key}')">
-                                    <i class="fas fa-trash"></i> Verwijderen
-                                </button>
-                            </div>
+                            ${isOwnMessage ? `
+                                <div class="message-actions">
+                                    <button class="edit-btn" onclick="editMessage('${childSnapshot.key}')">
+                                        <i class="fas fa-edit"></i> Bewerken
+                                    </button>
+                                    <button class="delete-btn" onclick="deleteMessage('${childSnapshot.key}')">
+                                        <i class="fas fa-trash"></i> Verwijderen
+                                    </button>
+                                </div>
+                            ` : ''}
                         `;
                     }
                     
