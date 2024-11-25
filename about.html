@@ -99,6 +99,13 @@
             background-color: var(--bg-color);
             border-radius: 8px;
             text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .feature i {
@@ -220,6 +227,66 @@
                 margin-bottom: 15px;
             }
         }
+
+        /* Modal styles */
+        .feature-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .feature-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--container-bg);
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .feature-modal-close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .feature-modal h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .feature-modal-details {
+            line-height: 1.6;
+        }
+
+        .feature-modal-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .feature-modal-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .feature-modal-list li:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -241,38 +308,50 @@
 
         <div class="description">
             <p>SnapCat is een moderne real-time chat applicatie ontwikkeld door 
-               <a href="https://github.com/Nico-Darth" 
+               <a href="https://github.com/Darth-Nico" 
                   target="_blank" 
                   style="color: var(--primary-color); text-decoration: underline;">Niels Coert</a>. 
-               Deze applicatie demonstreert de mogelijkheden van moderne web technologieën en real-time communicatie.</p>
+               Deze applicatie biedt een intuïtieve en gebruiksvriendelijke chat ervaring met real-time berichten, 
+               gebruikersprofielen en moderne features. Gebruikers kunnen direct met elkaar communiceren, berichten 
+               bewerken of verwijderen, en genieten van een responsief ontwerp dat werkt op alle apparaten. 
+               Met ondersteuning voor zowel light als dark mode biedt SnapCat een comfortabele chat ervaring 
+               op elk moment van de dag.</p>
         </div>
 
         <div class="features">
-            <div class="feature">
+            <div class="feature" onclick="showFeatureDetails('realtime')">
                 <i class="fas fa-comments"></i>
                 <h3>Real-time Chat</h3>
-                <p>Direct berichten versturen en ontvangen</p>
+                <p>Direct berichten versturen en ontvangen met instant updates</p>
             </div>
-            <div class="feature">
+            <div class="feature" onclick="showFeatureDetails('profiles')">
                 <i class="fas fa-user-circle"></i>
                 <h3>Gebruikers Profielen</h3>
-                <p>Persoonlijke profielen met unieke avatars</p>
+                <p>Persoonlijke profielen met aanpasbare avatars</p>
             </div>
-            <div class="feature">
+            <div class="feature" onclick="showFeatureDetails('theme')">
                 <i class="fas fa-moon"></i>
                 <h3>Light/Dark Mode</h3>
-                <p>Comfortabel chatten op elk moment van de dag</p>
+                <p>Comfortabel chatten met automatische thema aanpassing</p>
             </div>
-            <div class="feature">
+            <div class="feature" onclick="showFeatureDetails('responsive')">
                 <i class="fas fa-mobile-alt"></i>
                 <h3>Responsive Design</h3>
-                <p>Werkt perfect op alle apparaten</p>
+                <p>Optimale ervaring op alle schermformaten</p>
+            </div>
+        </div>
+
+        <div id="featureModal" class="feature-modal">
+            <div class="feature-modal-content">
+                <span class="feature-modal-close" onclick="closeFeatureModal()">&times;</span>
+                <h2 id="modalTitle"></h2>
+                <div id="modalContent" class="feature-modal-details"></div>
             </div>
         </div>
 
         <div style="text-align: center; margin-top: 30px; color: var(--text-color);">
             <p>Ontwikkeld door 
-               <a href="https://github.com/Nico-Darth" 
+               <a href="https://github.com/Darth-Nico" 
                   target="_blank" 
                   style="color: var(--primary-color); text-decoration: underline;">Niels Coert</a>
             </p>
@@ -335,6 +414,87 @@
         icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
 
         loadBannerPhotos();
+
+        function showFeatureDetails(feature) {
+            const modal = document.getElementById('featureModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+
+            const features = {
+                realtime: {
+                    title: 'Real-time Chat Functionaliteit',
+                    content: `
+                        <p>De real-time chat functionaliteit is gebouwd met Firebase Realtime Database, wat zorgt voor instant message delivery en synchronisatie.</p>
+                        <h4>Belangrijkste features:</h4>
+                        <ul class="feature-modal-list">
+                            <li>Instant message updates</li>
+                            <li>Berichten bewerken en verwijderen</li>
+                            <li>Emoji en tekst formatting</li>
+                            <li>Gebruiker mentions met @username</li>
+                            <li>Automatische scroll naar nieuwe berichten</li>
+                        </ul>
+                    `
+                },
+                profiles: {
+                    title: 'Gebruikers Profielen',
+                    content: `
+                        <p>Elk gebruikersprofiel is uniek en aanpasbaar, met verschillende personalisatie opties.</p>
+                        <h4>Profiel features:</h4>
+                        <ul class="feature-modal-list">
+                            <li>Unieke gebruikersnamen</li>
+                            <li>Aanpasbare profielfoto's</li>
+                            <li>Account beheer</li>
+                            <li>Privacy instellingen</li>
+                            <li>Account verwijdering optie</li>
+                        </ul>
+                    `
+                },
+                theme: {
+                    title: 'Light/Dark Mode',
+                    content: `
+                        <p>De applicatie past zich automatisch aan aan de voorkeuren van de gebruiker met een volledig geïntegreerd thema systeem.</p>
+                        <h4>Thema features:</h4>
+                        <ul class="feature-modal-list">
+                            <li>Automatische thema detectie</li>
+                            <li>Handmatige thema switch</li>
+                            <li>Persistente voorkeuren</li>
+                            <li>Optimaal contrast</li>
+                            <li>Soepele overgangen</li>
+                        </ul>
+                    `
+                },
+                responsive: {
+                    title: 'Responsive Design',
+                    content: `
+                        <p>De applicatie is volledig responsive en werkt perfect op alle apparaten en schermformaten.</p>
+                        <h4>Design features:</h4>
+                        <ul class="feature-modal-list">
+                            <li>Mobile-first approach</li>
+                            <li>Flexibele layouts</li>
+                            <li>Touch-vriendelijke interface</li>
+                            <li>Optimale tekst groottes</li>
+                            <li>Aangepaste mobile navigatie</li>
+                        </ul>
+                    `
+                }
+            };
+
+            title.textContent = features[feature].title;
+            content.innerHTML = features[feature].content;
+            modal.style.display = 'block';
+        }
+
+        function closeFeatureModal() {
+            document.getElementById('featureModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('featureModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html> 
