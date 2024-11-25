@@ -197,25 +197,122 @@
 
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: 0;
+                justify-content: flex-start;
+            }
+
+            .banner-container {
+                display: none;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 20px;
+                border-radius: 0;
+                box-shadow: none;
+                min-height: 100vh;
             }
 
             .app-title {
-                font-size: 28px;
+                font-size: 36px;
+                margin-top: 40px;
+            }
+
+            .app-description {
+                font-size: 14px;
+                margin-bottom: 30px;
+                padding: 0 20px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
             }
 
             input {
+                height: 45px;
                 font-size: 16px;
-            }
-
-            button {
                 padding: 12px;
             }
 
-            .theme-switch {
-                top: 10px;
-                right: 10px;
+            button {
+                height: 45px;
+                font-size: 16px;
             }
+
+            .forgot-password {
+                font-size: 14px;
+                padding: 10px 0;
+            }
+
+            .toggle-form {
+                font-size: 14px;
+                padding: 10px 0;
+            }
+
+            .message {
+                margin: 10px;
+                font-size: 14px;
+            }
+
+            .tooltip {
+                margin: 10px 0;
+            }
+
+            .tooltiptext {
+                width: 80%;
+                font-size: 12px;
+            }
+
+            .theme-switch {
+                top: 15px;
+                right: 15px;
+                background: var(--container-bg);
+                padding: 8px;
+                border-radius: 50%;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+        }
+
+        @media (max-width: 320px) {
+            .app-title {
+                font-size: 32px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            input, button {
+                height: 40px;
+            }
+        }
+
+        @media (hover: none) {
+            button:active {
+                opacity: 0.8;
+            }
+
+            .toggle-form:active,
+            .forgot-password:active {
+                opacity: 0.7;
+            }
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+
+        .app-title,
+        .app-description,
+        .toggle-form,
+        .forgot-password {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
     </style>
 </head>
