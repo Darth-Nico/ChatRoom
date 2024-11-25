@@ -1024,15 +1024,51 @@ const firebaseConfig = {
             return formattedText;
         }
 
-        // Voeg deze constante toe aan het begin van het script gedeelte
+        // Update de FORBIDDEN_WORDS constante
         const FORBIDDEN_WORDS = [
-            'kanker', 'kkr', 'kk', 'tyfus', 'tf', 
-            'homo', 'gay', 'flikker', 
-            'neger', 'nigger', 'nigga',
-            'kut', 'fuck', 'fck', 'shit', 
-            'tering', 'godver', 'gvd',
-            'hoer', 'slet', 'bitch',
-            // Voeg hier meer woorden toe indien nodig
+            // Ziektes
+            'kanker', 'kkr', 'kk', 'k@nker', 'kenker',
+            'tyfus', 'tf', 'typhus', 'tievus',
+            'tering', 'tr', 'teering',
+        
+            
+            // Discriminatie
+            'homo', 'gay', 'flikker', 'flikk3r',
+            'neger', 'nigger', 'nigga', 'n1gga', 'n1gg3r',
+            'jood', 'j00d', 'jood',
+            'moslim', 'm0slim',
+            'allochtoon', 'alloch',
+            
+            // Scheldwoorden
+            'kut', 'kutje', 'k*t',
+            'fuck', 'fck', 'fuk', 'f*ck', 'f*k',
+            'shit', 'sh*t', 'sheit',
+            'hoer', 'h0er', 'h0r', 'ho3r',
+            'slet', 'sl3t', 'slut',
+            'bitch', 'b1tch', 'b!tch',
+            
+            // Godslastering
+            'godver', 'gvd', 'godverdomme', 'gverdmme',
+            'jezus', 'jzs', 'j3zus',
+            
+            // Lichaamsdelen
+            'lul', 'l*l', 'piemel',
+            'pik', 'p1k', 'p!k',
+            'kont', 'k0nt',
+            'tiet', 't1et',
+            
+            // Variaties
+            'fack', 'fak', 'fakking',
+            'damn', 'dmn', 'dombo',
+            'mongool', 'mong', 'mongol',
+            'debiel', 'dbl', 'achterlijk',
+            'sukkel', 'sukkl', 'sukk3l',
+            
+            // Combinaties
+            'kutjong', 'kutwijf', 'kutvent',
+            'teringlijer', 'kankerlijer',
+            'klootzak', 'klotzak', 'kltz',
+            'eikel', 'e1kel', '3ikel'
         ];
 
         // Voeg deze functie toe om berichten te controleren
