@@ -21,6 +21,8 @@
             --primary-color: #2374e1;
             --hover-color: #2d83f3;
             --border-color: #3a3b3c;
+            --message-own-bg: #2374e1;
+            --message-own-text: white;
         }
 
         body {
@@ -110,7 +112,7 @@
 
         .message-username {
             font-weight: bold;
-            color: #1877f2;
+            color: var(--primary-color);
             margin-right: 8px;
             cursor: pointer;
         }
@@ -212,14 +214,14 @@
 
         .message-item.own-message {
             background-color: var(--message-own-bg);
-            color: white;
+            color: var(--text-color);
             margin-left: auto;
             margin-right: 0;
             width: 80%;
         }
 
         .message-item.own-message .message-username {
-            color: #0d6efd;
+            color: var(--primary-color);
         }
 
         .message-item.system-message {
@@ -327,7 +329,7 @@
 
         .message-item.own-message {
             background-color: var(--message-own-bg);
-            color: white;
+            color: var(--text-color);
         }
 
         .messages {
@@ -434,6 +436,10 @@
             .send-button {
                 padding: 8px 12px;
             }
+        }
+
+        [data-theme="dark"] .message-item.own-message .message-username {
+            color: var(--message-own-text);
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -628,6 +634,13 @@ const firebaseConfig = {
             const message = messageInput.value.trim();
 
             if (message) {
+                // Check for /cat command
+                if (message.toLowerCase() === '/cat') {
+                    sendCatPhoto();
+                    messageInput.value = '';
+                    return;
+                }
+
                 const messagesRef = database.ref('messages');
                 const newMessage = {
                     username: username,
@@ -756,14 +769,26 @@ const firebaseConfig = {
                     messageElement.id = `message-${childSnapshot.key}`;
                     
                     const time = new Date(message.timestamp).toLocaleTimeString();
-                    const formattedText = formatMessageWithMentions(message.text, username);
                     
-                    messageElement.innerHTML = `
-                        <span class="message-username">${message.username}</span>
-                        <span class="message-time">${time}</span>
-                        <div class="message-text">${formattedText}</div>
-                        ${message.edited ? '<span class="edited-mark"><i class="fas fa-pen-fancy"></i> bewerkt</span>' : ''}
-                        ${isOwnMessage ? `
+                    if (message.isImage) {
+                        messageElement.innerHTML = `
+                            <span class="message-username">${message.username}</span>
+                            <span class="message-time">${time}</span>
+                            <div class="message-text">${message.text}</div>
+                        `;
+                    } else {
+                        const formattedText = formatMessageWithMentions(message.text, username);
+                        messageElement.innerHTML = `
+                            <span class="message-username">${message.username}</span>
+                            <span class="message-time">${time}</span>
+                            <div class="message-text">${formattedText}</div>
+                            ${message.edited ? '<span class="edited-mark"><i class="fas fa-pen-fancy"></i> bewerkt</span>' : ''}
+                        `;
+                    }
+
+                    // Add edit/delete buttons only for non-image messages
+                    if (isOwnMessage && !message.isImage) {
+                        messageElement.innerHTML += `
                             <div class="message-actions">
                                 <button class="edit-btn" onclick="editMessage('${childSnapshot.key}')">
                                     <i class="fas fa-edit"></i> Bewerken
@@ -772,8 +797,8 @@ const firebaseConfig = {
                                     <i class="fas fa-trash"></i> Verwijderen
                                 </button>
                             </div>
-                        ` : ''}
-                    `;
+                        `;
+                    }
                     
                     messagesDiv.appendChild(messageElement);
                 });
@@ -971,6 +996,33 @@ const firebaseConfig = {
         document.documentElement.setAttribute('data-theme', savedTheme);
         const icon = document.querySelector('.theme-switch i');
         icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+        // Add this new function for sending cat photos
+        async function sendCatPhoto() {
+            try {
+                const response = await fetch('https://api.thecatapi.com/v1/images/search', {
+                    headers: {
+                        'x-api-key': 'live_f1NU151eg3nwl52RTLJOPSdycx0Dgpzpun9YIw197tPdL8RIce6cWaUQz2EZXehA'
+                    }
+                });
+                const data = await response.json();
+                const catUrl = data[0].url;
+
+                const messagesRef = database.ref('messages');
+                const newMessage = {
+                    username: username,
+                    text: `<img src="${catUrl}" alt="Cat" style="max-width: 300px; max-height: 300px; border-radius: 8px;">`,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    uid: auth.currentUser.uid,
+                    isImage: true
+                };
+
+                await messagesRef.push(newMessage);
+            } catch (error) {
+                console.error('Error sending cat photo:', error);
+                alert('Kon geen kattenfoto versturen');
+            }
+        }
     </script>
 </body>
 </html> 
