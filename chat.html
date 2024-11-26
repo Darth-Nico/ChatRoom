@@ -1691,33 +1691,63 @@ const firebaseConfig = {
         }
 
         function confirmDeleteAccount() {
+            const modalContent = document.createElement('div');
+            modalContent.style.textAlign = 'center';
+            modalContent.innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="color: #dc3545; font-size: 32px; margin-bottom: 20px;"></i>
+                <p style="margin-bottom: 20px;">Voer je wachtwoord in om je account te verwijderen:</p>
+                <div style="margin-bottom: 20px;">
+                    <input type="password" 
+                           id="deleteAccountPassword" 
+                           style="width: 100%;
+                                  padding: 8px;
+                                  border: 1px solid var(--border-color);
+                                  border-radius: 8px;
+                                  background: var(--container-bg);
+                                  color: var(--text-color);"
+                           placeholder="Wachtwoord">
+                    </div>
+            `;
+
             showCustomModal(
                 'Account Verwijderen',
-                'Weet je zeker dat je je account wilt verwijderen? Dit kan niet ongedaan worden gemaakt.',
+                modalContent,
                 () => {
+                    const password = document.getElementById('deleteAccountPassword').value;
+                    if (!password) {
+                        showCustomModal('Fout', 'Voer een wachtwoord in');
+                        return;
+                    }
+
                     const user = auth.currentUser;
-                    user.delete().then(() => {
-                        // Verwijder gebruikersdata uit de database
-                        database.ref('user-pfp/' + user.uid).remove();
-                        database.ref('user-warnings/' + user.uid).remove();
-                        
-                        // Verwijder lokale opslag
-                        localStorage.removeItem('username_' + user.uid);
-                        localStorage.removeItem('userPhotoUrl_' + user.uid);
-                        
-                        window.location.href = 'about.html';
-                    }).catch((error) => {
-                        if (error.code === 'auth/requires-recent-login') {
-                            showCustomModal(
-                                'Fout',
-                                'Log opnieuw in om je account te verwijderen voor de veiligheid.',
-                                () => logout(),
-                                false
-                            );
-                        } else {
-                            showCustomModal('Fout', 'Kon account niet verwijderen: ' + error.message);
-                        }
-                    });
+                    const credential = firebase.auth.EmailAuthProvider.credential(
+                        user.email,
+                        password
+                    );
+
+                    user.reauthenticateWithCredential(credential)
+                        .then(() => {
+                            // Verwijder gebruikersdata uit de database
+                            database.ref('user-pfp/' + user.uid).remove();
+                            database.ref('user-warnings/' + user.uid).remove();
+                            
+                            // Verwijder lokale opslag
+                            localStorage.removeItem('username_' + user.uid);
+                            localStorage.removeItem('userPhotoUrl_' + user.uid);
+                            
+                            return user.delete();
+                        })
+                        .then(() => {
+                            window.location.href = 'about.html';
+                        })
+                        .catch((error) => {
+                            if (error.code === 'auth/wrong-password') {
+                                showCustomModal('Fout', 'Onjuist wachtwoord');
+                            } else {
+                                console.error('Error deleting account:', error);
+                                showCustomModal('Fout', 'Er is iets misgegaan bij het verwijderen van je account');
+                            }
+                        });
                 },
                 true
             );
@@ -1743,16 +1773,18 @@ const firebaseConfig = {
 
             user.reauthenticateWithCredential(credential)
                 .then(() => {
-                    const userId = user.uid;
-                    localStorage.removeItem('username_' + userId);
-                    localStorage.removeItem('userPhotoUrl_' + userId);
+                    // Verwijder gebruikersdata uit de database
+                    database.ref('user-pfp/' + user.uid).remove();
+                    database.ref('user-warnings/' + user.uid).remove();
+                    
+                    // Verwijder lokale opslag
+                    localStorage.removeItem('username_' + user.uid);
+                    localStorage.removeItem('userPhotoUrl_' + user.uid);
+                    
                     return user.delete();
                 })
                 .then(() => {
-                    closePasswordModal();
-                    showCustomModal('Succes', 'Je account is succesvol verwijderd', () => {
-                        window.location.href = 'index.html';
-                    });
+                    window.location.href = 'about.html';
                 })
                 .catch((error) => {
                     if (error.code === 'auth/wrong-password') {
