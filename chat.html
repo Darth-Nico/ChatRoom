@@ -904,6 +904,28 @@
         .send-button {
             transition: background-color 0.3s ease, opacity 0.3s ease;
         }
+
+        /* Voeg deze CSS toe voor de notificatie-indicator */
+        .notification-dot {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+        }
+
+        .dropdown-item {
+            position: relative;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -1134,7 +1156,7 @@ const firebaseConfig = {
                 `;
 
                 loadMessages();
-                handleTyping();
+                updateNotificationCount();
             }
         });
 
@@ -1301,6 +1323,8 @@ const firebaseConfig = {
             } catch (error) {
                 console.error('Error handling warning:', error);
             }
+
+            updateNotificationCount(); // Voeg deze regel toe
         }
 
         // Voeg deze variabele toe aan het begin van het script
@@ -1525,6 +1549,7 @@ const firebaseConfig = {
                 });
                 
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                updateNotificationCount();
             });
         }
 
@@ -2060,39 +2085,47 @@ const firebaseConfig = {
                 });
         }
 
+        // Voeg deze variabele toe aan het begin van het script
+        let lastReadNotifications = 0;
+
+        // Update de showNotifications functie
         function showNotifications() {
             const uid = auth.currentUser.uid;
+            let newCount = 0; // Voeg deze variabele toe
+            
+            // Verwijder de rode notificatie-indicator
+            const notificationDot = document.querySelector('.notification-dot');
+            if (notificationDot) {
+                notificationDot.remove();
+            }
             
             // Haal zowel mentions als waarschuwingen op
             Promise.all([
                 database.ref('messages').once('value'),
                 database.ref(`user-warnings/${uid}`).once('value')
             ]).then(([messagesSnapshot, warningsSnapshot]) => {
-                // Verwerk mentions
                 const mentions = [];
                 messagesSnapshot.forEach((childSnapshot) => {
                     const message = childSnapshot.val();
-                    if (message.text.includes(`@${username}`)) {
+                    if (message.text && message.text.includes(`@${username}`)) {
                         mentions.push({
                             from: message.username,
                             text: message.text,
                             time: new Date(message.timestamp).toLocaleString()
                         });
+                        newCount++; // Tel mentions
                     }
                 });
 
-                // Verwerk waarschuwingen
                 const warnings = [];
-                if (warningsSnapshot.exists()) {
+                if (warningsSnapshot.exists() && warningsSnapshot.val().lastWarning) {
                     const warningData = warningsSnapshot.val();
-                    const warningCount = warningData.count || 0;
-                    if (warningData.lastWarning) {
-                        warnings.push({
-                            message: warningData.lastWarning.message,
-                            time: new Date(warningData.lastWarning.timestamp).toLocaleString(),
-                            count: warningCount
-                        });
-                    }
+                    warnings.push({
+                        message: warningData.lastWarning.message,
+                        time: new Date(warningData.lastWarning.timestamp).toLocaleString(),
+                        count: warningData.count || 0
+                    });
+                    newCount += warningData.count || 0; // Tel waarschuwingen
                 }
 
                 const modalContent = document.createElement('div');
@@ -2155,10 +2188,56 @@ const firebaseConfig = {
                     null,
                     false
                 );
+                
+                // Update lastReadNotifications aan het einde
+                lastReadNotifications = newCount;
             }).catch((error) => {
                 console.error('Error loading notifications:', error);
                 showCustomModal('Fout', 'Kon meldingen niet laden');
             });
+        }
+
+        // Update de updateNotificationCount functie
+        async function updateNotificationCount() {
+            const uid = auth.currentUser.uid;
+            let newCount = 0;
+            
+            try {
+                // Tel mentions
+                const messagesSnapshot = await database.ref('messages').once('value');
+                messagesSnapshot.forEach((childSnapshot) => {
+                    const message = childSnapshot.val();
+                    if (message.text && message.text.includes(`@${username}`)) {
+                        newCount++;
+                    }
+                });
+
+                // Tel waarschuwingen
+                const warningsSnapshot = await database.ref(`user-warnings/${uid}`).once('value');
+                if (warningsSnapshot.exists() && warningsSnapshot.val().count) {
+                    newCount += warningsSnapshot.val().count;
+                }
+
+                // Trek eerder gelezen notificaties af van de teller
+                const unreadCount = Math.max(0, newCount - lastReadNotifications);
+
+                // Update de UI alleen als er ongelezen notificaties zijn
+                const notificationDot = document.querySelector('.notification-dot');
+                if (unreadCount > 0) {
+                    if (!notificationDot) {
+                        const menuItem = document.querySelector('.dropdown-item:has(.fa-bell)');
+                        menuItem.innerHTML += `
+                            <span class="notification-dot">${unreadCount}</span>
+                        `;
+                    } else {
+                        notificationDot.textContent = unreadCount;
+                    }
+                } else if (notificationDot) {
+                    notificationDot.remove();
+                }
+            } catch (error) {
+                console.error('Error updating notification count:', error);
+            }
         }
     </script>
 </body>
