@@ -427,6 +427,31 @@
         .message.fade-out {
             animation: fadeOut 0.3s ease forwards;
         }
+
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container input {
+            width: 100%;
+            padding-right: 35px;
+        }
+
+        .password-container i {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-color);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .password-container i:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -447,7 +472,10 @@
                 <input type="email" id="loginEmail" placeholder="E-mail">
             </div>
             <div class="form-group">
-                <input type="password" id="loginPassword" placeholder="Wachtwoord">
+                <div class="password-container">
+                    <input type="password" id="loginPassword" placeholder="Wachtwoord">
+                    <i id="loginPasswordToggle" class="fas fa-eye" onclick="togglePasswordVisibility('loginPassword', 'loginPasswordToggle')"></i>
+                </div>
             </div>
             <button onclick="login()">Inloggen</button>
             <p class="forgot-password" onclick="resetPassword()">Wachtwoord vergeten?</p>
@@ -468,7 +496,10 @@
                 <input type="email" id="registerEmail" placeholder="E-mail">
             </div>
             <div class="form-group">
-                <input type="password" id="registerPassword" placeholder="Wachtwoord">
+                <div class="password-container">
+                    <input type="password" id="registerPassword" placeholder="Wachtwoord">
+                    <i id="registerPasswordToggle" class="fas fa-eye" onclick="togglePasswordVisibility('registerPassword', 'registerPasswordToggle')"></i>
+                </div>
             </div>
             <button onclick="register()">Registreren</button>
             <p class="toggle-form" onclick="toggleForms()">Al een account? Log hier in</p>
@@ -609,6 +640,13 @@
                 if (!username) usernameInput.classList.add('error-input');
                 if (!email) emailInput.classList.add('error-input');
                 if (!password) passwordInput.classList.add('error-input');
+                return;
+            }
+
+            // Check voor ongepaste gebruikersnaam
+            if (containsForbiddenWords(username)) {
+                showMessage('Deze gebruikersnaam is niet toegestaan', 'error');
+                usernameInput.classList.add('error-input');
                 return;
             }
 
@@ -779,6 +817,49 @@
         document.getElementById('registerPassword').addEventListener('input', function() {
             this.classList.remove('error-input');
         });
+
+        // Voeg deze constanten toe
+        const FORBIDDEN_WORDS = [
+            // Ziektes
+            'kanker', 'k@nker', 'kenker',
+            'tyfus', 'typhus', 'tievus',
+            'tering', 'teering',
+            // ... rest van de blacklist zoals in chat.html
+        ];
+
+        const FORBIDDEN_USERNAMES = ['staff', 'admin', 'administrator', 'mod', 'moderator'];
+
+        // Voeg deze functie toe voor wachtwoord zichtbaarheid
+        function togglePasswordVisibility(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Voeg deze functie toe voor username validatie
+        function containsForbiddenWords(text) {
+            // Check eerst op verboden gebruikersnamen
+            if (FORBIDDEN_USERNAMES.includes(text.toLowerCase())) {
+                return true;
+            }
+
+            const words = text.toLowerCase().split(/\s+/);
+            const foundWords = FORBIDDEN_WORDS.filter(forbidden => 
+                words.some(word => 
+                    word.includes(forbidden) || 
+                    word.replace(/[0-9@$]/g, '').includes(forbidden)
+                )
+            );
+            
+            return foundWords.length > 0;
+        }
     </script>
 </body>
 </html> 

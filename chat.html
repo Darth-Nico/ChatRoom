@@ -1046,16 +1046,7 @@ const firebaseConfig = {
                 const warningsRef = database.ref(`user-warnings/${user.uid}`);
                 const snapshot = await warningsRef.once('value');
                 if (snapshot.exists() && snapshot.val().blocked) {
-                    auth.signOut().then(() => {
-                        showCustomModal(
-                            'Account Geblokkeerd',
-                            'Dit account is geblokkeerd vanwege ongepast gedrag. Neem contact op met de beheerder.',
-                            () => {
-                                window.location.href = 'index.html';
-                            },
-                            false
-                        );
-                    });
+                    window.location.href = 'banned.html';
                     return;
                 }
 
