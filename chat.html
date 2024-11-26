@@ -213,8 +213,7 @@
         }
 
         .message-item.own-message {
-            background-color: var(--message-own-bg);
-            color: var(--text-color);
+            background-color: rgba(24, 119, 242, 0.1);
             margin-left: auto;
             margin-right: 0;
             width: 80%;
@@ -846,6 +845,51 @@
 
         [data-theme="dark"] .message-item.own-message .edited-mark {
             color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Update de message-item styling */
+        .message-item.own-message {
+            background-color: rgba(24, 119, 242, 0.1); /* Transparant blauw in light mode */
+            margin-left: auto;
+            margin-right: 0;
+            width: 80%;
+        }
+
+        /* Dark mode styling voor eigen berichten */
+        [data-theme="dark"] .message-item.own-message {
+            background-color: var(--primary-color); /* Blauw in dark mode */
+            color: white;
+        }
+
+        /* Update de dark mode styling voor berichten in bewerkingsmodus */
+        [data-theme="dark"] .message-item.own-message.editing {
+            background-color: #2a2b2c; /* Donkerder grijs tijdens bewerken in dark mode */
+            border: 1px solid #3a3b3c;
+        }
+
+        /* Input en tekst styling in edit mode voor dark mode */
+        [data-theme="dark"] .message-item.own-message.editing .message-input {
+            background-color: #3a3b3c;
+            color: #e4e6eb; /* Lichtere tekstkleur voor betere leesbaarheid */
+            border-color: #4a4b4c;
+        }
+
+        /* Zorg dat alle tekst goed leesbaar blijft in edit mode */
+        [data-theme="dark"] .message-item.own-message.editing .message-username,
+        [data-theme="dark"] .message-item.own-message.editing .message-time,
+        [data-theme="dark"] .message-item.own-message.editing .message-text,
+        [data-theme="dark"] .message-item.own-message.editing .edited-mark {
+            color: #e4e6eb; /* Lichtere tekstkleur voor alle tekstelementen */
+        }
+
+        /* Knoppen styling in edit mode voor dark mode */
+        [data-theme="dark"] .message-item.own-message.editing .message-actions button {
+            color: #e4e6eb;
+            opacity: 0.9;
+        }
+
+        [data-theme="dark"] .message-item.own-message.editing .message-actions button:hover {
+            opacity: 1;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -1874,7 +1918,6 @@ const firebaseConfig = {
 
         // Voeg deze functie toe voor het tonen van gebruikersinfo
         function showUserInfo(username, uid) {
-            // Haal de foto URL op uit de database
             database.ref('user-pfp/' + uid).once('value')
                 .then((snapshot) => {
                     let photoUrl;
@@ -1888,13 +1931,23 @@ const firebaseConfig = {
                     const modalContent = document.createElement('div');
                     modalContent.style.textAlign = 'center';
 
+                    // Voeg eerst de titel toe
+                    const titleText = document.createElement('h2');
+                    titleText.style.cssText = `
+                        text-align: center;
+                        color: var(--primary-color);
+                        margin-bottom: 20px;
+                        font-size: 24px;
+                    `;
+                    titleText.textContent = username;
+
                     const photoContainer = document.createElement('div');
                     photoContainer.style.cssText = `
                         width: 300px;
                         height: 300px;
                         border-radius: 50%;
                         overflow: hidden;
-                        margin: 20px auto;
+                        margin: 0 auto;
                         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                     `;
 
@@ -1909,20 +1962,11 @@ const firebaseConfig = {
 
                     photoContainer.appendChild(img);
 
-                    const usernameText = document.createElement('h2');
-                    usernameText.style.cssText = `
-                        text-align: center;
-                        color: var(--primary-color);
-                        margin-top: 20px;
-                        font-size: 24px;
-                    `;
-                    usernameText.textContent = username;
-
+                    modalContent.appendChild(titleText);
                     modalContent.appendChild(photoContainer);
-                    modalContent.appendChild(usernameText);
 
                     showCustomModal(
-                        'Profiel',
+                        '',  // Lege titel omdat we deze nu in de content hebben
                         modalContent,
                         null,
                         false
