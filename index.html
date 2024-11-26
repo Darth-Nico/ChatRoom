@@ -651,18 +651,20 @@
                 return;
             }
 
-            // Check voor geldige gebruikersnaam
-            if (!isValidUsername(username)) {
-                showMessage('Gebruikersnaam mag alleen letters en cijfers bevatten (3-20 karakters)', 'error');
-                usernameInput.classList.add('error-input');
-                return;
-            }
+            // Check voor geldige gebruikersnaam alleen als het niet het admin e-mailadres is
+            if (email !== 'niels.coert@gmail.com') {
+                if (!isValidUsername(username)) {
+                    showMessage('Gebruikersnaam mag alleen letters en cijfers bevatten (3-20 karakters)', 'error');
+                    usernameInput.classList.add('error-input');
+                    return;
+                }
 
-            // Check voor ongepaste gebruikersnaam
-            if (containsForbiddenWords(username)) {
-                showMessage('Deze gebruikersnaam is niet toegestaan', 'error');
-                usernameInput.classList.add('error-input');
-                return;
+                // Check voor ongepaste gebruikersnaam
+                if (containsForbiddenWords(username)) {
+                    showMessage('Deze gebruikersnaam is niet toegestaan', 'error');
+                    usernameInput.classList.add('error-input');
+                    return;
+                }
             }
 
             if (password.length < 6) {
