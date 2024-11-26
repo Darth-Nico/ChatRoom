@@ -552,6 +552,11 @@
 
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
+                    const username = localStorage.getItem('username_' + userCredential.user.uid);
+                    if (!username) {
+                        localStorage.setItem('username_' + userCredential.user.uid, 'Anoniem');
+                    }
+                    
                     showMessage('Succesvol ingelogd!', 'success');
                     setTimeout(() => {
                         window.location.href = 'chat.html';
@@ -591,6 +596,43 @@
             }
         }
 
+        // Voeg eerst de FORBIDDEN_WORDS constante toe
+        const FORBIDDEN_WORDS = [
+            // Ziektes
+            'kanker', 'kkr', 'kk', 'k@nker', 'kenker',
+            'tyfus', 'tf', 'typhus', 'tievus',
+            'tering', 'tr', 'teering',
+
+            // Discriminatie
+            'homo', 'gay', 'flikker', 'flikk3r',
+            'neger', 'nigger', 'nigga', 'n1gga', 'n1gg3r',
+            'jood', 'j00d', 'jood',
+            'moslim', 'm0slim',
+            'allochtoon', 'alloch',
+            
+            // Scheldwoorden
+            'kut', 'kutje', 'k*t',
+            'fuck', 'fck', 'fuk', 'f*ck', 'f*k',
+            'shit', 'sh*t', 'sheit',
+            'hoer', 'h0er', 'h0r', 'ho3r',
+            'slet', 'sl3t', 'slut',
+            'bitch', 'b1tch', 'b!tch'
+        ];
+
+        // Voeg de check functie toe
+        function containsForbiddenWords(text) {
+            const words = text.toLowerCase().split(/\s+/);
+            const foundWords = FORBIDDEN_WORDS.filter(forbidden => 
+                words.some(word => 
+                    word.includes(forbidden) || 
+                    word.replace(/[0-9@$]/g, '').includes(forbidden)
+                )
+            );
+            
+            return foundWords.length > 0;
+        }
+
+        // Update alleen de register functie
         async function register() {
             const usernameInput = document.getElementById('registerUsername');
             const emailInput = document.getElementById('registerEmail');
@@ -612,6 +654,13 @@
                 return;
             }
 
+            // Check voor ongepaste gebruikersnaam
+            if (containsForbiddenWords(username)) {
+                showMessage('Deze gebruikersnaam is niet toegestaan', 'error');
+                usernameInput.classList.add('error-input');
+                return;
+            }
+
             if (password.length < 6) {
                 showMessage('Wachtwoord moet minimaal 6 tekens bevatten', 'error');
                 passwordInput.classList.add('error-input');
@@ -624,6 +673,15 @@
                 const catPhotoUrl = await getRandomCatPhoto();
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 
+                // Verwijder alle oude usernames uit localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('username_')) {
+                        localStorage.removeItem(key);
+                    }
+                }
+                
+                // Sla nieuwe username op
                 localStorage.setItem('username_' + userCredential.user.uid, username);
                 localStorage.setItem('userPhotoUrl_' + userCredential.user.uid, catPhotoUrl);
                 
@@ -638,11 +696,6 @@
                     errorMessage = 'Dit e-mailadres is al in gebruik';
                 }
                 showMessage(errorMessage, 'error');
-
-                // Verwijder error class na timeout
-                setTimeout(() => {
-                    emailInput.classList.remove('error-input');
-                }, 5000); // Zelfde timing als de message timeout
             }
         }
 
