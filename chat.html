@@ -1251,57 +1251,36 @@ const firebaseConfig = {
                 });
 
                 if (currentWarnings >= 3) {
-                    // Forceer uitloggen bij 3 waarschuwingen
-                    const modalContent = document.createElement('div');
-                    modalContent.style.textAlign = 'center';
-                    modalContent.innerHTML = `
-                        <i class="fas fa-ban" style="color: #dc3545; font-size: 48px; margin-bottom: 20px;"></i>
-                        <p style="color: #dc3545; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
-                            Account Geblokkeerd
-                        </p>
-                        <p style="margin-bottom: 15px;">
-                            Je account is geblokkeerd vanwege herhaaldelijk gebruik van ongepaste taal.
-                            Neem contact op met de beheerder om je account te deblokkeren.
-                        </p>
-                    `;
-
                     // Sla geblokkeerde status op in database
                     await database.ref(`user-warnings/${uid}/blocked`).set(true);
 
-                    showCustomModal(
-                        'Account Geblokkeerd', 
-                        modalContent, 
-                        () => {
-                            auth.signOut().then(() => {
-                                window.location.href = 'index.html';
-                            });
-                        },
-                        false
-                    );
-                } else {
-                    const modalContent = document.createElement('div');
-                    modalContent.style.textAlign = 'center';
-                    modalContent.innerHTML = `
-                        <i class="fas fa-exclamation-triangle" style="color: #dc3545; font-size: 48px; margin-bottom: 20px;"></i>
-                        <p style="color: #dc3545; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
-                            Waarschuwing ${currentWarnings}/3
-                        </p>
-                        <p style="margin-bottom: 15px;">
-                            Je bericht bevat ongepaste woorden en kan niet worden verzonden.
-                        </p>
-                        <p style="color: #666; font-size: 14px;">
-                            Bij 3 waarschuwingen wordt je account geblokkeerd.<br>
-                            Houd de chat vriendelijk en respectvol.
-                        </p>
-                    `;
-
-                    showCustomModal(
-                        'Waarschuwing', 
-                        modalContent,
-                        null, 
-                        false
-                    );
+                    // Direct doorsturen naar banned.html zonder uitloggen
+                    window.location.href = 'banned.html';
+                    return;
                 }
+
+                const modalContent = document.createElement('div');
+                modalContent.style.textAlign = 'center';
+                modalContent.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="color: #dc3545; font-size: 48px; margin-bottom: 20px;"></i>
+                    <p style="color: #dc3545; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+                        Waarschuwing ${currentWarnings}/3
+                    </p>
+                    <p style="margin-bottom: 15px;">
+                        Je bericht bevat ongepaste woorden en kan niet worden verzonden.
+                    </p>
+                    <p style="color: #666; font-size: 14px;">
+                        Bij 3 waarschuwingen wordt je account geblokkeerd.<br>
+                        Houd de chat vriendelijk en respectvol.
+                    </p>
+                `;
+
+                showCustomModal(
+                    'Waarschuwing', 
+                    modalContent,
+                    null, 
+                    false
+                );
             } catch (error) {
                 console.error('Error handling warning:', error);
             }

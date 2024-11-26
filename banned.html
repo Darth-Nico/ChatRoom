@@ -79,21 +79,6 @@
             border-top: 1px solid var(--border-color);
         }
 
-        .logout-button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-
-        .logout-button:hover {
-            background-color: var(--hover-color);
-        }
-
         .theme-switch {
             position: fixed;
             top: 20px;
@@ -145,8 +130,6 @@
             <p>Neem contact op met de beheerder via:</p>
             <p><strong>E-mail:</strong> niels.coert@gmail.com</p>
         </div>
-
-        <a href="#" onclick="logout()" class="logout-button">Uitloggen</a>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -183,12 +166,6 @@
                 window.location.href = 'about.html';
             }
         });
-
-        function logout() {
-            auth.signOut().then(() => {
-                window.location.href = 'about.html';
-            });
-        }
 
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
