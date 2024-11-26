@@ -824,10 +824,52 @@
             'kanker', 'k@nker', 'kenker',
             'tyfus', 'typhus', 'tievus',
             'tering', 'teering',
-            // ... rest van de blacklist zoals in chat.html
+
+            // Discriminatie
+            'homo', 'gay', 'flikker', 'flikk3r', 'h0mo', 'g4y',
+            'neger', 'nigger', 'nigga', 'n1gga', 'n1gg3r', 'n3ger', 'nig',
+            'jood', 'j00d', 'jood', 'jew', 'j3w',
+            'moslim', 'm0slim', 'musl1m', 'islam',
+            'allochtoon', 'alloch', 'buitenlander',
+            'racist', 'rac1st',
+            
+            // Scheldwoorden
+            'kut', 'kutje', 'k*t',
+            'fuck', 'fck', 'fuk', 'f*ck', 'f*k',
+            'shit', 'sh*t', 'sheit',
+            'hoer', 'h0er', 'h0r', 'ho3r', 'hoe',
+            'slet', 'sl3t', 'slut', 'sl*t',
+            'bitch', 'b1tch', 'b!tch', 'b*tch',
+            
+            // Godslastering
+            'godverdomme', 'godver', 'gvd',
+            'jezus', 'jzs', 'j3zus',
+            
+            // Lichaamsdelen
+            'lul', 'l*l', 'piemel',
+            'pik', 'p1k', 'p!k',
+            'kont', 'k0nt',
+            'tiet', 't1et',
+            
+            // Variaties
+            'fack', 'fak', 'fakking',
+            'damn', 'dmn', 'dombo',
+            'mongool', 'mong', 'mongol',
+            'debiel', 'dbl', 'achterlijk',
+            'sukkel', 'sukkl', 'sukk3l',
+            
+            // Combinaties
+            'kutjong', 'kutwijf', 'kutvent',
+            'teringlijer', 'kankerlijer',
+            'klootzak', 'klotzak', 'kltz'
         ];
 
-        const FORBIDDEN_USERNAMES = ['staff', 'admin', 'administrator', 'mod', 'moderator'];
+        const FORBIDDEN_USERNAMES = [
+            'staff', 'admin', 'administrator', 'mod', 'moderator',
+            'system', 'support', 'help', 'info', 'owner',
+            'snapcat', 'official', 'beheerder', 'moderatie',
+            'niels', 'coert', 'nielscoert'
+        ];
 
         // Voeg deze functie toe voor wachtwoord zichtbaarheid
         function togglePasswordVisibility(inputId, iconId) {
