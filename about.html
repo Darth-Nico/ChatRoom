@@ -329,15 +329,15 @@
                 <h3>Gebruikers Profielen</h3>
                 <p>Persoonlijke profielen met aanpasbare avatars</p>
             </div>
+            <div class="feature" onclick="showFeatureDetails('moderation')">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Chat Moderatie</h3>
+                <p>Automatische moderatie en waarschuwingssysteem</p>
+            </div>
             <div class="feature" onclick="showFeatureDetails('theme')">
                 <i class="fas fa-moon"></i>
                 <h3>Light/Dark Mode</h3>
                 <p>Comfortabel chatten met automatische thema aanpassing</p>
-            </div>
-            <div class="feature" onclick="showFeatureDetails('responsive')">
-                <i class="fas fa-mobile-alt"></i>
-                <h3>Responsive Design</h3>
-                <p>Optimale ervaring op alle schermformaten</p>
             </div>
         </div>
 
@@ -463,17 +463,19 @@
                         </ul>
                     `
                 },
-                responsive: {
-                    title: 'Responsive Design',
+                moderation: {
+                    title: 'Chat Moderatie Systeem',
                     content: `
-                        <p>De applicatie is volledig responsive en werkt perfect op alle apparaten en schermformaten.</p>
-                        <h4>Design features:</h4>
+                        <p>Een geavanceerd moderatiesysteem zorgt voor een veilige en respectvolle chatervaring.</p>
+                        <h4>Moderatie features:</h4>
                         <ul class="feature-modal-list">
-                            <li>Mobile-first approach</li>
-                            <li>Flexibele layouts</li>
-                            <li>Touch-vriendelijke interface</li>
-                            <li>Optimale tekst groottes</li>
-                            <li>Aangepaste mobile navigatie</li>
+                            <li>Automatische detectie van ongepast taalgebruik</li>
+                            <li>Waarschuwingssysteem met 3 strikes</li>
+                            <li>Tijdelijke of permanente account blokkering</li>
+                            <li>Uitgebreide blacklist van verboden woorden</li>
+                            <li>Real-time moderatie van berichten</li>
+                            <li>Duidelijke waarschuwingsmeldingen</li>
+                            <li>Gebruikersgeschiedenis van waarschuwingen</li>
                         </ul>
                     `
                 }

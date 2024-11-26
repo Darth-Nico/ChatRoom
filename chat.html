@@ -1042,6 +1042,23 @@ const firebaseConfig = {
             if (!user) {
                 window.location.href = 'index.html';
             } else {
+                // Check of account geblokkeerd is
+                const warningsRef = database.ref(`user-warnings/${user.uid}`);
+                const snapshot = await warningsRef.once('value');
+                if (snapshot.exists() && snapshot.val().blocked) {
+                    auth.signOut().then(() => {
+                        showCustomModal(
+                            'Account Geblokkeerd',
+                            'Dit account is geblokkeerd vanwege ongepast gedrag. Neem contact op met de beheerder.',
+                            () => {
+                                window.location.href = 'index.html';
+                            },
+                            false
+                        );
+                    });
+                    return;
+                }
+
                 username = localStorage.getItem('username_' + user.uid) || 'Anoniem';
                 requestNotificationPermission();
                 document.getElementById('headerUsername').textContent = username;
@@ -1125,48 +1142,46 @@ const firebaseConfig = {
         // Update de FORBIDDEN_WORDS constante
         const FORBIDDEN_WORDS = [
             // Ziektes
-            'kanker', 'kkr', 'kk', 'k@nker', 'kenker',
-            'tyfus', 'tf', 'typhus', 'tievus',
-            'tering', 'tr', 'teering',
-        
-            
+            'kanker', 'k@nker', 'kenker',
+            'tyfus', 'typhus', 'tievus',
+            'tering', 'teering',
+
             // Discriminatie
             'homo', 'gay', 'flikker', 'flikk3r',
             'neger', 'nigger', 'nigga', 'n1gga', 'n1gg3r',
-            'jood', 'j00d', 'jood',
+            'jood', 'j00d',
             'moslim', 'm0slim',
-            'allochtoon', 'alloch',
+            'allochtoon',
             
             // Scheldwoorden
-            'kut', 'kutje', 'k*t',
-            'fuck', 'fck', 'fuk', 'f*ck', 'f*k',
-            'shit', 'sh*t', 'sheit',
-            'hoer', 'h0er', 'h0r', 'ho3r',
+            'kut', 'kutje',
+            'fuck', 'fuk',
+            'shit', 'sheit',
+            'hoer', 'h0er',
             'slet', 'sl3t', 'slut',
-            'bitch', 'b1tch', 'b!tch',
+            'bitch', 'b1tch',
             
             // Godslastering
-            'godver', 'gvd', 'godverdomme', 'gverdmme',
-            'jezus', 'jzs', 'j3zus',
+            'godverdomme', 'godver',
+            'jezus',
             
             // Lichaamsdelen
-            'lul', 'l*l', 'piemel',
-            'pik', 'p1k', 'p!k',
-            'kont', 'k0nt',
-            'tiet', 't1et',
+            'lul', 'piemel',
+            'pik', 'p1k',
+            'kont',
+            'tiet',
             
             // Variaties
-            'fack', 'fak', 'fakking',
-            'damn', 'dmn', 'dombo',
-            'mongool', 'mong', 'mongol',
-            'debiel', 'dbl', 'achterlijk',
-            'sukkel', 'sukkl', 'sukk3l',
+            'fakking',
+            'dombo',
+            'mongool', 'mongol',
+            'debiel', 'achterlijk',
+            'sukkel',
             
             // Combinaties
             'kutjong', 'kutwijf', 'kutvent',
             'teringlijer', 'kankerlijer',
-            'klootzak', 'klotzak', 'kltz',
-            'eikel', 'e1kel', '3ikel'
+            'klootzak'
         ];
 
         // Voeg deze functie toe om berichten te controleren
@@ -1183,7 +1198,81 @@ const firebaseConfig = {
             return foundWords.length > 0 ? foundWords : false;
         }
 
-        // Wijzig de sendMessage functie
+        // Update de handleWarning functie
+        async function handleWarning(message) {
+            const uid = auth.currentUser.uid;
+            const warningsRef = database.ref(`user-warnings/${uid}`);
+            
+            try {
+                const snapshot = await warningsRef.once('value');
+                const currentWarnings = (snapshot.exists() ? snapshot.val().count : 0) + 1;
+                
+                await warningsRef.set({
+                    count: currentWarnings,
+                    lastWarning: {
+                        message: message,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }
+                });
+
+                if (currentWarnings >= 3) {
+                    // Forceer uitloggen bij 3 waarschuwingen
+                    const modalContent = document.createElement('div');
+                    modalContent.style.textAlign = 'center';
+                    modalContent.innerHTML = `
+                        <i class="fas fa-ban" style="color: #dc3545; font-size: 48px; margin-bottom: 20px;"></i>
+                        <p style="color: #dc3545; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+                            Account Geblokkeerd
+                        </p>
+                        <p style="margin-bottom: 15px;">
+                            Je account is geblokkeerd vanwege herhaaldelijk gebruik van ongepaste taal.
+                            Neem contact op met de beheerder om je account te deblokkeren.
+                        </p>
+                    `;
+
+                    // Sla geblokkeerde status op in database
+                    await database.ref(`user-warnings/${uid}/blocked`).set(true);
+
+                    showCustomModal(
+                        'Account Geblokkeerd', 
+                        modalContent, 
+                        () => {
+                            auth.signOut().then(() => {
+                                window.location.href = 'index.html';
+                            });
+                        },
+                        false
+                    );
+                } else {
+                    const modalContent = document.createElement('div');
+                    modalContent.style.textAlign = 'center';
+                    modalContent.innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="color: #dc3545; font-size: 48px; margin-bottom: 20px;"></i>
+                        <p style="color: #dc3545; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+                            Waarschuwing ${currentWarnings}/3
+                        </p>
+                        <p style="margin-bottom: 15px;">
+                            Je bericht bevat ongepaste woorden en kan niet worden verzonden.
+                        </p>
+                        <p style="color: #666; font-size: 14px;">
+                            Bij 3 waarschuwingen wordt je account geblokkeerd.<br>
+                            Houd de chat vriendelijk en respectvol.
+                        </p>
+                    `;
+
+                    showCustomModal(
+                        'Waarschuwing', 
+                        modalContent,
+                        null, 
+                        false
+                    );
+                }
+            } catch (error) {
+                console.error('Error handling warning:', error);
+            }
+        }
+
+        // Update de sendMessage functie
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
@@ -1199,13 +1288,7 @@ const firebaseConfig = {
                 // Controleer op verboden woorden
                 const foundForbiddenWords = containsForbiddenWords(message);
                 if (foundForbiddenWords) {
-                    showCustomModal(
-                        'Waarschuwing', 
-                        `Je bericht bevat ongepaste woorden en kan niet worden verzonden. 
-                        Houd de chat vriendelijk en respectvol.`, 
-                        null, 
-                        false
-                    );
+                    handleWarning(message);
                     return;
                 }
 
@@ -1424,13 +1507,7 @@ const firebaseConfig = {
                 // Controleer op verboden woorden
                 const foundForbiddenWords = containsForbiddenWords(newText);
                 if (foundForbiddenWords) {
-                    showCustomModal(
-                        'Waarschuwing', 
-                        `Je bewerkte bericht bevat ongepaste woorden en kan niet worden opgeslagen. 
-                        Houd de chat vriendelijk en respectvol.`, 
-                        null, 
-                        false
-                    );
+                    handleWarning(newText);
                     return;
                 }
 
