@@ -891,6 +891,19 @@
         [data-theme="dark"] .message-item.own-message.editing .message-actions button:hover {
             opacity: 1;
         }
+
+        /* Voeg deze CSS toe voor de disabled button styling */
+        .send-button:disabled {
+            background-color: #cccccc !important; /* Grijs tijdens cooldown */
+            opacity: 0.7;
+            cursor: not-allowed;
+            color: #666666;
+        }
+
+        /* Voeg een transitie toe voor soepele kleurverandering */
+        .send-button {
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -1286,10 +1299,18 @@ const firebaseConfig = {
             }
         }
 
+        // Voeg deze variabele toe aan het begin van het script
+        let messageOnCooldown = false;
+
         // Update de sendMessage functie
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
+            const sendButton = document.querySelector('.send-button');
             const message = messageInput.value.trim();
+
+            if (messageOnCooldown) {
+                return;
+            }
 
             if (message) {
                 // Check voor /cat command
@@ -1306,6 +1327,12 @@ const firebaseConfig = {
                     return;
                 }
 
+                // Start cooldown
+                messageOnCooldown = true;
+                sendButton.disabled = true;
+                sendButton.style.backgroundColor = '#cccccc';
+                sendButton.style.cursor = 'not-allowed';
+
                 const messagesRef = database.ref('messages');
                 const newMessage = {
                     username: username,
@@ -1317,10 +1344,22 @@ const firebaseConfig = {
                 messagesRef.push(newMessage)
                     .then(() => {
                         messageInput.value = '';
+                        // Reset cooldown na 2 seconden
+                        setTimeout(() => {
+                            messageOnCooldown = false;
+                            sendButton.disabled = false;
+                            sendButton.style.backgroundColor = '';
+                            sendButton.style.cursor = 'pointer';
+                        }, 2000);
                     })
                     .catch((error) => {
                         console.error('Error sending message:', error);
                         showCustomModal('Fout', 'Bericht kon niet worden verzonden');
+                        // Reset cooldown bij error
+                        messageOnCooldown = false;
+                        sendButton.disabled = false;
+                        sendButton.style.backgroundColor = '';
+                        sendButton.style.cursor = 'pointer';
                     });
             }
         }
