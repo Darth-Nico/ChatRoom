@@ -1098,6 +1098,62 @@
         [data-theme="dark"] .reply-preview .close-reply:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
+
+        /* Voeg deze CSS toe aan de bestaande style sectie */
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .password-input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .password-input.error {
+            border-color: #dc3545;
+            animation: shakeError 0.8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        .password-input.success {
+            border-color: #28a745;
+        }
+
+        .feedback-message {
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 8px;
+            border-radius: 4px;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-message.error {
+            display: block;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .feedback-message.success {
+            display: block;
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .feedback-message i {
+            margin-right: 5px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -1201,6 +1257,25 @@
                     <p><strong>Gebruikersnaam:</strong> <span id="profileUsername"></span></p>
                     <p><strong>E-mail:</strong> <span id="profileEmail"></span></p>
                     <p><strong>Account ID:</strong> <span id="profileId"></span></p>
+                    
+                    <button onclick="showResetPassword()" style="
+                        width: 100%;
+                        padding: 10px;
+                        background-color: var(--primary-color);
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        margin: 20px 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                    ">
+                        <i class="fas fa-key"></i>
+                        Reset Wachtwoord
+                    </button>
+
                     <button onclick="confirmDeleteAccount()" style="
                         width: 100%;
                         padding: 10px;
@@ -1209,7 +1284,6 @@
                         border: none;
                         border-radius: 4px;
                         cursor: pointer;
-                        margin-top: 20px;
                     ">Account Verwijderen</button>
                 </div>
             </div>
@@ -1366,7 +1440,8 @@ const firebaseConfig = {
                 clearInterval(titleInterval);
                 document.title = originalTitle;
             }
-        }
+            }
+        
 
         function formatMessageWithMentions(text, currentUsername) {
             const formattedText = text.replace(/@(\w+)/g, (match, username) => {
@@ -2155,6 +2230,7 @@ const firebaseConfig = {
             }
         }
 
+        // Update de showCustomModal functie
         function showCustomModal(title, content, confirmCallback = null, showCancel = false) {
             const modal = document.getElementById('customModal');
             const titleEl = document.getElementById('modalTitle');
@@ -2164,20 +2240,25 @@ const firebaseConfig = {
 
             titleEl.textContent = title;
             
-            // Check of content een HTML element is of een string
             if (content instanceof HTMLElement) {
-                messageEl.innerHTML = ''; // Leeg de bestaande inhoud
-                messageEl.appendChild(content); // Voeg het HTML element toe
+                messageEl.innerHTML = '';
+                messageEl.appendChild(content);
             } else {
-                messageEl.textContent = content; // Voor string content
+                messageEl.innerHTML = content;
             }
 
             cancelBtn.style.display = showCancel ? 'block' : 'none';
 
             if (confirmCallback) {
-                confirmBtn.onclick = () => {
-                    confirmCallback();
+                confirmBtn.onclick = async () => {
+                    try {
+                        const shouldClose = await confirmCallback();
+                        if (shouldClose !== false) {
                     closeCustomModal();
+                        }
+                    } catch (error) {
+                        console.error('Modal callback error:', error);
+                    }
                 };
             } else {
                 confirmBtn.onclick = closeCustomModal;
@@ -2646,6 +2727,115 @@ const firebaseConfig = {
             if (preview) {
                 preview.remove();
             }
+        }
+
+        // Voeg deze functie toe voor wachtwoord reset
+        function showResetPassword() {
+            const modalContent = document.createElement('div');
+            modalContent.innerHTML = `
+                <div style="text-align: center;">
+                    <i class="fas fa-key" style="font-size: 48px; color: var(--primary-color); margin-bottom: 20px;"></i>
+                    <p style="margin-bottom: 20px;">Voer eerst je huidige wachtwoord in:</p>
+                    <div style="position: relative;">
+                        <input type="password" 
+                               id="currentPassword" 
+                               placeholder="Huidig wachtwoord"
+                               style="width: 100%;
+                                      padding: 8px;
+                                      margin-bottom: 5px;
+                                      border: 1px solid var(--border-color);
+                                      border-radius: 4px;
+                                      background: var(--bg-color);
+                                      color: var(--text-color);
+                                      transition: all 0.3s ease;">
+                        <div id="passwordFeedback" style="
+                            font-size: 12px;
+                            margin-top: 4px;
+                            margin-bottom: 15px;
+                            display: none;
+                            text-align: left;
+                            padding: 8px;
+                            border-radius: 4px;
+                            transition: all 0.3s ease;">
+                        </div>
+                    </div>
+                    <p style="font-size: 14px; opacity: 0.7;">
+                        Na verificatie wordt er een reset link verzonden naar:<br>
+                        <strong>${auth.currentUser.email}</strong>
+                    </p>
+                </div>
+            `;
+
+            const modalOptions = {
+                title: 'Reset Wachtwoord',
+                content: modalContent,
+                onConfirm: async () => {
+                    const passwordInput = document.getElementById('currentPassword');
+                    const feedbackDiv = document.getElementById('passwordFeedback');
+                    const currentPassword = passwordInput.value;
+
+                    // Reset states
+                    passwordInput.style.borderColor = 'var(--border-color)';
+                    feedbackDiv.style.display = 'none';
+                    passwordInput.classList.remove('edit-error');
+
+                    if (!currentPassword) {
+                        passwordInput.style.borderColor = '#dc3545';
+                        feedbackDiv.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                        feedbackDiv.style.color = '#dc3545';
+                        feedbackDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Voer je wachtwoord in';
+                        feedbackDiv.style.display = 'block';
+                        passwordInput.classList.add('edit-error');
+                        return false;
+                    }
+
+                    try {
+                        const credential = firebase.auth.EmailAuthProvider.credential(
+                            auth.currentUser.email,
+                            currentPassword
+                        );
+
+                        await auth.currentUser.reauthenticateWithCredential(credential);
+                        await auth.sendPasswordResetEmail(auth.currentUser.email);
+                        
+                        // Success feedback
+                        passwordInput.style.borderColor = '#28a745';
+                        feedbackDiv.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+                        feedbackDiv.style.color = '#28a745';
+                        feedbackDiv.innerHTML = '<i class="fas fa-check"></i> Reset link is verzonden naar je e-mail';
+                        feedbackDiv.style.display = 'block';
+                        
+                        // Wacht even zodat de gebruiker de success message kan zien
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        return true;
+                        
+                    } catch (error) {
+                        console.error('Error:', error);
+                        passwordInput.style.borderColor = '#dc3545';
+                        passwordInput.classList.add('edit-error');
+                        feedbackDiv.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                        feedbackDiv.style.color = '#dc3545';
+                        
+                        if (error.code === 'auth/wrong-password') {
+                            feedbackDiv.innerHTML = '<i class="fas fa-times"></i> Wachtwoord is onjuist';
+                        } else if (error.code === 'auth/too-many-requests') {
+                            feedbackDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Te veel pogingen. Probeer het later opnieuw';
+                        } else {
+                            feedbackDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Wachtwoord is onjuist';
+                        }
+                        feedbackDiv.style.display = 'block';
+                        return false;
+                    }
+                },
+                showCancel: true
+            };
+
+            showCustomModal(
+                modalOptions.title,
+                modalOptions.content,
+                modalOptions.onConfirm,
+                modalOptions.showCancel
+            );
         }
     </script>
 </body>
