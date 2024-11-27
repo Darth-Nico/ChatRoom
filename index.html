@@ -546,6 +546,127 @@
         .feature-modal-content::-webkit-scrollbar-thumb:hover {
             background: var(--hover-color);
         }
+
+        /* Mobile-friendly modal styling */
+        @media (max-width: 768px) {
+            .feature-modal-content {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                margin: 0;
+                padding: 15px;
+                border-radius: 0;
+                position: fixed;
+                top: 0;
+                left: 0;
+                transform: none;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .feature-modal-close {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                background: var(--primary-color);
+                color: white;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                z-index: 1001;
+            }
+
+            .feature-modal h2 {
+                margin-top: 10px;
+                padding-top: 40px;
+                position: sticky;
+                top: 0;
+                background-color: var(--container-bg);
+                z-index: 1000;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 10px;
+            }
+
+            .feature-modal-content > div {
+                flex: 1;
+                overflow-y: auto;
+                padding: 15px 0;
+                font-size: 16px;
+                line-height: 1.6;
+            }
+
+            /* Verbeterde scrolling voor mobiel */
+            .feature-modal-content {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Grotere klikbare gebieden voor links */
+            .feature-modal-content a {
+                padding: 5px 0;
+                display: inline-block;
+            }
+
+            /* Betere tekstspatiëring voor leesbaarheid */
+            .feature-modal-content p {
+                margin-bottom: 1.2em;
+            }
+
+            /* Duidelijkere secties */
+            .feature-modal-content h1,
+            .feature-modal-content h2,
+            .feature-modal-content h3 {
+                margin-top: 1.5em;
+                margin-bottom: 0.8em;
+            }
+
+            /* Verbeterde lijst styling */
+            .feature-modal-content ul {
+                padding-left: 20px;
+                margin-bottom: 1.2em;
+            }
+
+            .feature-modal-content li {
+                margin-bottom: 0.8em;
+            }
+        }
+
+        /* Animaties voor soepele overgang */
+        @media (max-width: 768px) {
+            .feature-modal {
+                animation: slideUpMobile 0.3s ease;
+            }
+
+            .feature-modal-content {
+                animation: none;
+            }
+
+            @keyframes slideUpMobile {
+                from {
+                    opacity: 0;
+                    transform: translateY(100%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        }
+
+        /* Verbeterde touch feedback */
+        @media (hover: none) {
+            .feature-modal-close:active {
+                transform: scale(0.95);
+            }
+
+            .feature-modal-content a:active {
+                opacity: 0.7;
+            }
+        }
     </style>
 </head>
 <body>
