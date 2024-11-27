@@ -1341,55 +1341,97 @@ const firebaseConfig = {
             }
 
             if (message) {
-                // Check voor /cat command
-                if (message.toLowerCase() === '/cat') {
-                    sendCatPhoto();
+                // Check voor links in het bericht
+                const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
+                if (urlRegex.test(message)) {
+                    // Toon waarschuwingsmodal voor links
+                    const modalContent = document.createElement('div');
+                    modalContent.style.textAlign = 'center';
+                    modalContent.innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="color: #dc3545; font-size: 48px; margin-bottom: 20px;"></i>
+                        <h3 style="color: #dc3545; margin-bottom: 15px;">Waarschuwing: Link Gedetecteerd</h3>
+                        <div style="text-align: left; margin: 20px 0; padding: 15px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">
+                            <p style="margin-bottom: 10px;"><strong>Let op:</strong></p>
+                            <ul style="list-style-type: none; padding: 0;">
+                                <li style="margin-bottom: 8px;">• Het delen van illegale content is ten strengste verboden</li>
+                                <li style="margin-bottom: 8px;">• Bij overtreding volgt een permanente ban</li>
+                                <li style="margin-bottom: 8px;">• Bij ernstige overtredingen wordt aangifte gedaan</li>
+                            </ul>
+                        </div>
+                        <p style="font-size: 14px; color: var(--text-color); margin-top: 15px;">
+                            Wil je doorgaan met het versturen van dit bericht?
+                        </p>
+                    `;
+
+                    showCustomModal(
+                        'Link Waarschuwing',
+                        modalContent,
+                        () => {
+                            // Ga door met versturen na bevestiging
+                            actualSendMessage(message);
+                        },
+                        true // Toon annuleerknop
+                    );
+                    return;
+                }
+
+                actualSendMessage(message);
+            }
+        }
+
+        // Voeg deze hulpfunctie toe voor het daadwerkelijk versturen van berichten
+        function actualSendMessage(message) {
+            const sendButton = document.querySelector('.send-button');
+            const messageInput = document.getElementById('messageInput');
+
+            // Check voor /cat command
+            if (message.toLowerCase() === '/cat') {
+                sendCatPhoto();
+                messageInput.value = '';
+                return;
+            }
+
+            // Controleer op verboden woorden
+            const foundForbiddenWords = containsForbiddenWords(message);
+            if (foundForbiddenWords) {
+                handleWarning(message);
+                return;
+            }
+
+            // Start cooldown
+            messageOnCooldown = true;
+            sendButton.disabled = true;
+            sendButton.style.backgroundColor = '#cccccc';
+            sendButton.style.cursor = 'not-allowed';
+
+            const messagesRef = database.ref('messages');
+            const newMessage = {
+                username: username,
+                text: message,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                uid: auth.currentUser.uid
+            };
+
+            messagesRef.push(newMessage)
+                .then(() => {
                     messageInput.value = '';
-                    return;
-                }
-
-                // Controleer op verboden woorden
-                const foundForbiddenWords = containsForbiddenWords(message);
-                if (foundForbiddenWords) {
-                    handleWarning(message);
-                    return;
-                }
-
-                // Start cooldown
-                messageOnCooldown = true;
-                sendButton.disabled = true;
-                sendButton.style.backgroundColor = '#cccccc';
-                sendButton.style.cursor = 'not-allowed';
-
-                const messagesRef = database.ref('messages');
-                const newMessage = {
-                    username: username,
-                    text: message,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    uid: auth.currentUser.uid
-                };
-
-                messagesRef.push(newMessage)
-                    .then(() => {
-                        messageInput.value = '';
-                        // Reset cooldown na 2 seconden
-                        setTimeout(() => {
-                            messageOnCooldown = false;
-                            sendButton.disabled = false;
-                            sendButton.style.backgroundColor = '';
-                            sendButton.style.cursor = 'pointer';
-                        }, 2000);
-                    })
-                    .catch((error) => {
-                        console.error('Error sending message:', error);
-                        showCustomModal('Fout', 'Bericht kon niet worden verzonden');
-                        // Reset cooldown bij error
+                    // Reset cooldown na 2 seconden
+                    setTimeout(() => {
                         messageOnCooldown = false;
                         sendButton.disabled = false;
                         sendButton.style.backgroundColor = '';
                         sendButton.style.cursor = 'pointer';
-                    });
-            }
+                    }, 2000);
+                })
+                .catch((error) => {
+                    console.error('Error sending message:', error);
+                    showCustomModal('Fout', 'Bericht kon niet worden verzonden');
+                    // Reset cooldown bij error
+                    messageOnCooldown = false;
+                    sendButton.disabled = false;
+                    sendButton.style.backgroundColor = '';
+                    sendButton.style.cursor = 'pointer';
+                });
         }
 
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
@@ -1506,6 +1548,22 @@ const firebaseConfig = {
                     
                     const time = new Date(message.timestamp).toLocaleTimeString();
                     
+                    // Converteer links naar klikbare hyperlinks met waarschuwing voor links van anderen
+                    let messageText = message.text;
+                    if (!message.isImage) {
+                        const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
+                        messageText = messageText.replace(urlRegex, (url) => {
+                            const fullUrl = url.startsWith('www.') ? 'https://' + url : url;
+                            if (isOwnMessage) {
+                                // Eigen links direct klikbaar
+                                return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color);">${url}</a>`;
+                            } else {
+                                // Links van anderen met waarschuwing
+                                return `<a href="#" onclick="showLinkWarning('${fullUrl}', '${message.username}'); return false;" style="color: var(--primary-color);">${url}</a>`;
+                            }
+                        });
+                    }
+                    
                     if (message.isImage) {
                         messageElement.innerHTML = `
                             <span class="message-username">${message.username}</span>
@@ -1520,7 +1578,7 @@ const firebaseConfig = {
                             ` : ''}
                         `;
                     } else {
-                        const formattedText = formatMessageWithMentions(message.text, username);
+                        const formattedText = formatMessageWithMentions(messageText, username);
                         messageElement.innerHTML = `
                             <span class="message-username" onclick="showUserInfo('${message.username}', '${message.uid}')">${message.username}</span>
                             <span class="message-time">${time}</span>
@@ -2238,6 +2296,41 @@ const firebaseConfig = {
             } catch (error) {
                 console.error('Error updating notification count:', error);
             }
+        }
+
+        // Voeg deze functie toe voor de link waarschuwing
+        function showLinkWarning(url, username) {
+            const modalContent = document.createElement('div');
+            modalContent.style.textAlign = 'center';
+            modalContent.innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="color: #dc3545; font-size: 48px; margin-bottom: 20px;"></i>
+                <h3 style="color: #dc3545; margin-bottom: 15px;">Externe Link Waarschuwing</h3>
+                <div style="text-align: left; margin: 20px 0; padding: 15px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">
+                    <p style="margin-bottom: 10px;">Je staat op het punt een link te openen die is gedeeld door <strong>${username}</strong>:</p>
+                    <p style="word-break: break-all; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 4px; font-family: monospace;">
+                        ${url}
+                    </p>
+                    <p style="margin-top: 15px; color: #dc3545;"><strong>Waarschuwing:</strong></p>
+                    <ul style="list-style-type: none; padding: 0;">
+                        <li style="margin-bottom: 8px;">• Wees voorzichtig met het openen van onbekende links</li>
+                        <li style="margin-bottom: 8px;">• Controleer altijd het webadres voordat je doorgaat</li>
+                        <li style="margin-bottom: 8px;">• Open geen verdachte of onbekende websites</li>
+                        <li style="margin-bottom: 8px;">• SnapCat is niet verantwoordelijk voor externe websites</li>
+                    </ul>
+                </div>
+                <p style="font-size: 14px; color: var(--text-color); margin-top: 15px;">
+                    Weet je zeker dat je deze link wilt openen?
+                </p>
+            `;
+
+            showCustomModal(
+                'Link Waarschuwing',
+                modalContent,
+                () => {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                },
+                true // Toon annuleerknop
+            );
         }
     </script>
 </body>
