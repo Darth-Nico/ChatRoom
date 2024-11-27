@@ -153,17 +153,23 @@
         // Check ban status wanneer de pagina laadt
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Check of gebruiker gebanned is
-                const warningsRef = database.ref(`user-warnings/${user.uid}`);
-                const snapshot = await warningsRef.once('value');
-                
-                if (!snapshot.exists() || !snapshot.val().blocked) {
-                    // Gebruiker is niet gebanned, stuur door naar about.html
-                    window.location.href = 'about.html';
+                try {
+                    // Check of gebruiker gebanned is
+                    const warningsRef = database.ref(`user-warnings/${user.uid}`);
+                    const snapshot = await warningsRef.once('value');
+                    
+                    if (!snapshot.exists() || !snapshot.val().blocked) {
+                        // Gebruiker is niet gebanned, stuur door naar chat.html
+                        window.location.href = 'chat.html';
+                    }
+                } catch (error) {
+                    console.error('Error checking ban status:', error);
+                    // Bij een error, voor de zekerheid doorsturen naar chat.html
+                    window.location.href = 'chat.html';
                 }
             } else {
-                // Niet ingelogd, stuur door naar about.html
-                window.location.href = 'about.html';
+                // Niet ingelogd, stuur door naar index.html
+                window.location.href = 'index.html';
             }
         });
 
