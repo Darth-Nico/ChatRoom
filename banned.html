@@ -152,6 +152,8 @@
 
         // Check ban status wanneer de pagina laadt
         auth.onAuthStateChanged(async (user) => {
+            const container = document.querySelector('.container');
+            
             if (user) {
                 try {
                     // Check of gebruiker gebanned is
@@ -159,17 +161,77 @@
                     const snapshot = await warningsRef.once('value');
                     
                     if (!snapshot.exists() || !snapshot.val().blocked) {
-                        // Gebruiker is niet gebanned, stuur door naar chat.html
-                        window.location.href = 'chat.html';
+                        // Gebruiker is niet gebanned, toon 403 pagina
+                        container.innerHTML = `
+                            <i class="fas fa-exclamation-triangle ban-icon" style="color: #dc3545;"></i>
+                            <h1>Toegang Geweigerd</h1>
+                            
+                            <div class="warning-box" style="background-color: rgba(220, 53, 69, 0.1);">
+                                <p>Je hebt geen toegang tot deze pagina.</p>
+                                <p>Deze pagina is alleen toegankelijk voor geblokkeerde accounts.</p>
+                            </div>
+
+                            <button onclick="window.location.href='chat.html'" 
+                                    style="
+                                        background-color: var(--primary-color);
+                                        color: white;
+                                        border: none;
+                                        padding: 10px 20px;
+                                        border-radius: 4px;
+                                        cursor: pointer;
+                                        margin-top: 20px;
+                                        font-size: 16px;
+                                    ">
+                                Terug naar Chat
+                            </button>
+                        `;
+                    } else {
+                        // Gebruiker is gebanned, toon normale banned pagina
+                        container.innerHTML = `
+                            <i class="fas fa-ban ban-icon"></i>
+                            <h1>Account Geblokkeerd</h1>
+                            
+                            <div class="warning-box">
+                                <p>Je account is geblokkeerd vanwege herhaaldelijk gebruik van ongepaste taal.</p>
+                                <p>Dit gebeurt na 3 waarschuwingen voor het gebruik van verboden woorden.</p>
+                            </div>
+
+                            <p>We streven naar een vriendelijke en respectvolle omgeving voor alle gebruikers.</p>
+                            
+                            <div class="contact-info">
+                                <p>Neem contact op met de beheerder via:</p>
+                                <p><strong>E-mail:</strong> niels.coert@gmail.com</p>
+                            </div>
+                        `;
                     }
                 } catch (error) {
                     console.error('Error checking ban status:', error);
-                    // Bij een error, voor de zekerheid doorsturen naar chat.html
                     window.location.href = 'chat.html';
                 }
             } else {
-                // Niet ingelogd, stuur door naar index.html
-                window.location.href = 'index.html';
+                // Niet ingelogd, toon 403 pagina met login link
+                container.innerHTML = `
+                    <i class="fas fa-exclamation-triangle ban-icon" style="color: #dc3545;"></i>
+                    <h1>Toegang Geweigerd</h1>
+                    
+                    <div class="warning-box" style="background-color: rgba(220, 53, 69, 0.1);">
+                        <p>Je moet ingelogd zijn om deze pagina te bekijken.</p>
+                    </div>
+
+                    <button onclick="window.location.href='index.html'" 
+                            style="
+                                background-color: var(--primary-color);
+                                color: white;
+                                border: none;
+                                padding: 10px 20px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                margin-top: 20px;
+                                font-size: 16px;
+                            ">
+                        Ga naar Login
+                    </button>
+                `;
             }
         });
 
