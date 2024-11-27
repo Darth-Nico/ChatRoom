@@ -926,6 +926,178 @@
         .dropdown-item {
             position: relative;
         }
+
+        /* Dark mode styling voor berichten in bewerkingsmodus */
+        [data-theme="dark"] .message-item.editing {
+            background-color: #2a2b2c !important; /* Donkergrijze achtergrond */
+        }
+
+        [data-theme="dark"] .message-item.editing .message-input {
+            background-color: #3a3b3c;
+            color: #e4e6eb;
+            border-color: #4a4b4c;
+        }
+
+        [data-theme="dark"] .message-item.editing.own-message {
+            background-color: #2a2b2c !important; /* Zelfde donkergrijs voor eigen berichten */
+        }
+
+        [data-theme="dark"] .message-item.editing .message-username,
+        [data-theme="dark"] .message-item.editing .message-time,
+        [data-theme="dark"] .message-item.editing .message-text,
+        [data-theme="dark"] .message-item.editing .edited-mark,
+        [data-theme="dark"] .message-item.editing.own-message .message-username,
+        [data-theme="dark"] .message-item.editing.own-message .message-time,
+        [data-theme="dark"] .message-item.editing.own-message .message-text,
+        [data-theme="dark"] .message-item.editing.own-message .edited-mark {
+            color: #e4e6eb !important; /* Lichte tekstkleur voor betere leesbaarheid */
+        }
+
+        /* Zorg dat de knoppen goed zichtbaar blijven */
+        [data-theme="dark"] .message-item.editing .send-button,
+        [data-theme="dark"] .message-item.editing.own-message .send-button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        [data-theme="dark"] .message-item.editing .logout-btn,
+        [data-theme="dark"] .message-item.editing.own-message .logout-btn {
+            background-color: transparent;
+            color: #e4e6eb;
+            border: 1px solid #4a4b4c;
+        }
+
+        /* Update de shake animatie */
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .edit-error {
+            animation: shakeError 0.8s cubic-bezier(.36,.07,.19,.97) both;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+            border-color: #dc3545 !important;
+            background-color: rgba(220, 53, 69, 0.05) !important;
+        }
+
+        .edit-error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .edit-error-message.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Voeg deze CSS toe aan de bestaande stijlen */
+        .reply-button {
+            color: var(--text-color);
+            opacity: 0.7;
+            cursor: pointer;
+            padding: 2px 5px;
+            background: none;
+            border: none;
+            font-size: 12px;
+            transition: opacity 0.2s;
+        }
+
+        .reply-button:hover {
+            opacity: 1;
+        }
+
+        .reply-preview {
+            background: var(--bg-color);
+            padding: 8px 12px;
+            border-left: 3px solid var(--primary-color);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .reply-preview .reply-header {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .reply-preview .reply-text {
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100% - 20px);
+        }
+
+        .reply-preview .close-reply {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--bg-color);
+        }
+
+        .reply-preview .close-reply:hover {
+            opacity: 1;
+            background-color: var(--border-color);
+        }
+
+        /* Styling voor de reply knop */
+        .reply-button {
+            color: var(--text-color);
+            opacity: 0.7;
+            cursor: pointer;
+            padding: 4px 8px;
+            background: none;
+            border: none;
+            font-size: 12px;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+
+        .reply-button:hover {
+            opacity: 1;
+            background-color: rgba(var(--primary-color-rgb), 0.1);
+        }
+
+        /* Dark mode aanpassingen */
+        [data-theme="dark"] .reply-preview {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="dark"] .reply-preview .close-reply {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] .reply-preview .close-reply:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -1412,9 +1584,28 @@ const firebaseConfig = {
                 uid: auth.currentUser.uid
             };
 
+            // Voeg reply informatie toe als we aan het antwoorden zijn
+            if (replyingTo) {
+                newMessage.replyTo = {
+                    messageId: replyingTo.messageId,
+                    username: replyingTo.username,
+                    text: replyingTo.text
+                };
+
+                // Verwijder direct de reply preview
+                    const replyPreview = document.querySelector('.reply-preview');
+                    if (replyPreview) {
+                        replyPreview.remove();
+                    }
+
+                // Reset replyingTo
+                    replyingTo = null;
+            }
+
             messagesRef.push(newMessage)
                 .then(() => {
                     messageInput.value = '';
+
                     // Reset cooldown na 2 seconden
                     setTimeout(() => {
                         messageOnCooldown = false;
@@ -1426,6 +1617,7 @@ const firebaseConfig = {
                 .catch((error) => {
                     console.error('Error sending message:', error);
                     showCustomModal('Fout', 'Bericht kon niet worden verzonden');
+
                     // Reset cooldown bij error
                     messageOnCooldown = false;
                     sendButton.disabled = false;
@@ -1582,6 +1774,12 @@ const firebaseConfig = {
                         messageElement.innerHTML = `
                             <span class="message-username" onclick="showUserInfo('${message.username}', '${message.uid}')">${message.username}</span>
                             <span class="message-time">${time}</span>
+                            ${message.replyTo ? `
+                                <div class="reply-preview">
+                                    <div class="reply-header">Antwoord aan ${message.replyTo.username}</div>
+                                    <div class="reply-text">${message.replyTo.text}</div>
+                                </div>
+                            ` : ''}
                             <div class="message-text">${formattedText}</div>
                             ${message.edited ? '<span class="edited-mark"><i class="fas fa-pen-fancy"></i> bewerkt</span>' : ''}
                             <div class="message-reactions" id="reactions-${childSnapshot.key}">
@@ -1590,16 +1788,19 @@ const firebaseConfig = {
                                     <i class="fas fa-plus-circle"></i>
                                 </button>
                             </div>
-                            ${isOwnMessage ? `
-                                <div class="message-actions">
+                            <div class="message-actions" style="display: flex; gap: 8px;">
+                                <button class="reply-button" onclick="replyToMessage('${childSnapshot.key}', '${message.username}', '${message.text.replace(/'/g, "\\'")}')">
+                                    <i class="fas fa-reply"></i> Beantwoorden
+                                </button>
+                                ${isOwnMessage ? `
                                     <button class="edit-btn" onclick="editMessage('${childSnapshot.key}')">
                                         <i class="fas fa-edit"></i> Bewerken
                                     </button>
                                     <button class="delete-btn" onclick="deleteMessage('${childSnapshot.key}')">
                                         <i class="fas fa-trash"></i> Verwijderen
                                     </button>
-                                </div>
                             ` : ''}
+                            </div>
                         `;
                     }
                     
@@ -1616,18 +1817,21 @@ const firebaseConfig = {
             const messageText = messageElement.querySelector('.message-text');
             const currentText = messageText.textContent;
             
+            // Sla originele tekst op
+            messageElement.setAttribute('data-original-text', currentText);
+            
             // Add editing class
             messageElement.classList.add('editing');
             
             // Replace message text with input field
             messageText.innerHTML = `
                 <input type="text" class="message-input" value="${currentText}" style="width: 100%">
-                <div style="margin-top: 5px">
-                    <button onclick="saveEdit('${messageId}')" class="send-button" style="padding: 4px 8px; font-size: 12px;">
-                        Opslaan
+                <div style="margin-top: 5px; display: flex; gap: 8px; justify-content: flex-start;">
+                    <button onclick="saveEdit('${messageId}')" class="send-button" style="width: 100px; padding: 4px 8px; font-size: 12px;">
+                        <i class="fas fa-check"></i> Opslaan
                     </button>
-                    <button onclick="cancelEdit('${messageId}')" class="logout-btn" style="padding: 4px 8px; font-size: 12px;">
-                        Annuleren
+                    <button onclick="cancelEdit('${messageId}')" class="logout-btn" style="width: 100px; padding: 4px 8px; font-size: 12px; margin: 0;">
+                        <i class="fas fa-times"></i> Annuleren
                     </button>
                 </div>
             `;
@@ -1642,6 +1846,34 @@ const firebaseConfig = {
             const messageElement = document.getElementById(`message-${messageId}`);
             const input = messageElement.querySelector('input');
             const newText = input.value.trim();
+            const originalText = messageElement.getAttribute('data-original-text');
+            
+            // Verwijder bestaande error states
+            input.classList.remove('edit-error');
+            const existingErrorMessage = messageElement.querySelector('.edit-error-message');
+            if (existingErrorMessage) {
+                existingErrorMessage.remove();
+            }
+            
+            // Check of de tekst is gewijzigd
+            if (newText === originalText) {
+                // Voeg error feedback toe
+                input.classList.add('edit-error');
+                
+                // Voeg error bericht toe
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'edit-error-message show';
+                errorMessage.textContent = 'Er zijn geen wijzigingen aangebracht';
+                input.parentElement.appendChild(errorMessage);
+                
+                // Verwijder error states na 2 seconden
+                setTimeout(() => {
+                    input.classList.remove('edit-error');
+                    errorMessage.remove();
+                }, 2000);
+                
+                return;
+            }
             
             if (newText) {
                 // Controleer op verboden woorden
@@ -2149,7 +2381,7 @@ const firebaseConfig = {
         // Update de showNotifications functie
         function showNotifications() {
             const uid = auth.currentUser.uid;
-            let newCount = 0; // Voeg deze variabele toe
+            let newCount = 0;
             
             // Verwijder de rode notificatie-indicator
             const notificationDot = document.querySelector('.notification-dot');
@@ -2157,21 +2389,34 @@ const firebaseConfig = {
                 notificationDot.remove();
             }
             
-            // Haal zowel mentions als waarschuwingen op
+            // Haal mentions, replies en waarschuwingen op
             Promise.all([
                 database.ref('messages').once('value'),
                 database.ref(`user-warnings/${uid}`).once('value')
             ]).then(([messagesSnapshot, warningsSnapshot]) => {
                 const mentions = [];
+                const replies = [];
+
                 messagesSnapshot.forEach((childSnapshot) => {
                     const message = childSnapshot.val();
+                    // Check voor mentions
                     if (message.text && message.text.includes(`@${username}`)) {
                         mentions.push({
                             from: message.username,
                             text: message.text,
                             time: new Date(message.timestamp).toLocaleString()
                         });
-                        newCount++; // Tel mentions
+                        newCount++;
+                    }
+                    // Check voor replies naar jouw berichten
+                    if (message.replyTo && message.replyTo.username === username) {
+                        replies.push({
+                            from: message.username,
+                            text: message.text,
+                            originalText: message.replyTo.text,
+                            time: new Date(message.timestamp).toLocaleString()
+                        });
+                        newCount++;
                     }
                 });
 
@@ -2183,7 +2428,7 @@ const firebaseConfig = {
                         time: new Date(warningData.lastWarning.timestamp).toLocaleString(),
                         count: warningData.count || 0
                     });
-                    newCount += warningData.count || 0; // Tel waarschuwingen
+                    newCount += warningData.count || 0;
                 }
 
                 const modalContent = document.createElement('div');
@@ -2194,13 +2439,7 @@ const firebaseConfig = {
                             <i class="fas fa-exclamation-triangle"></i> Waarschuwingen (${warnings.length > 0 ? warnings[0].count : '0'}/3)
                         </h3>
                         ${warnings.length > 0 ? warnings.map(warning => `
-                            <div style="
-                                padding: 15px;
-                                margin-bottom: 15px;
-                                background: rgba(220, 53, 69, 0.1);
-                                border: 1px solid #dc3545;
-                                border-radius: 8px;
-                            ">
+                            <div style="padding: 15px; margin-bottom: 15px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">
                                 <div style="font-weight: bold; color: #dc3545; margin-bottom: 5px;">
                                     Waarschuwing ${warning.count}/3
                                 </div>
@@ -2214,18 +2453,34 @@ const firebaseConfig = {
                         `).join('') : '<p>Geen waarschuwingen</p>'}
                     </div>
 
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="margin-bottom: 20px; color: var(--primary-color);">
+                            <i class="fas fa-reply"></i> Antwoorden op jouw berichten
+                        </h3>
+                        ${replies.length > 0 ? replies.map(reply => `
+                            <div style="padding: 10px; margin-bottom: 10px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border-color)">
+                                <div style="font-weight: bold; margin-bottom: 5px;">
+                                    ${reply.from} heeft gereageerd:
+                                </div>
+                                <div style="margin-bottom: 5px; padding: 5px; background: rgba(0,0,0,0.05); border-radius: 4px; font-style: italic;">
+                                    Jouw bericht: "${reply.originalText}"
+                                </div>
+                                <div style="margin-bottom: 5px;">
+                                    Antwoord: "${reply.text}"
+                                </div>
+                                <div style="font-size: 12px; opacity: 0.7;">
+                                    ${reply.time}
+                                </div>
+                            </div>
+                        `).join('') : '<p>Geen antwoorden</p>'}
+                    </div>
+
                     <div>
                         <h3 style="margin-bottom: 20px; color: var(--primary-color);">
                             <i class="fas fa-bell"></i> Vermeldingen
                         </h3>
                         ${mentions.length > 0 ? mentions.map(mention => `
-                            <div style="
-                                padding: 10px;
-                                margin-bottom: 10px;
-                                background: var(--bg-color);
-                                border-radius: 8px;
-                                border: 1px solid var(--border-color)
-                            ">
+                            <div style="padding: 10px; margin-bottom: 10px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border-color)">
                                 <div style="font-weight: bold; margin-bottom: 5px;">
                                     Van: ${mention.from}
                                 </div>
@@ -2247,7 +2502,6 @@ const firebaseConfig = {
                     false
                 );
                 
-                // Update lastReadNotifications aan het einde
                 lastReadNotifications = newCount;
             }).catch((error) => {
                 console.error('Error loading notifications:', error);
@@ -2265,7 +2519,12 @@ const firebaseConfig = {
                 const messagesSnapshot = await database.ref('messages').once('value');
                 messagesSnapshot.forEach((childSnapshot) => {
                     const message = childSnapshot.val();
+                    // Tel mentions
                     if (message.text && message.text.includes(`@${username}`)) {
+                        newCount++;
+                    }
+                    // Tel replies
+                    if (message.replyTo && message.replyTo.username === username) {
                         newCount++;
                     }
                 });
@@ -2280,18 +2539,35 @@ const firebaseConfig = {
                 const unreadCount = Math.max(0, newCount - lastReadNotifications);
 
                 // Update de UI alleen als er ongelezen notificaties zijn
-                const notificationDot = document.querySelector('.notification-dot');
-                if (unreadCount > 0) {
-                    if (!notificationDot) {
                         const menuItem = document.querySelector('.dropdown-item:has(.fa-bell)');
+                const existingDot = menuItem.querySelector('.notification-dot');
+                
+                if (unreadCount > 0) {
+                    if (!existingDot) {
                         menuItem.innerHTML += `
-                            <span class="notification-dot">${unreadCount}</span>
+                            <span class="notification-dot" style="
+                                position: absolute;
+                                right: 10px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                background-color: #dc3545;
+                                color: white;
+                                border-radius: 50%;
+                                min-width: 18px;
+                                height: 18px;
+                                font-size: 11px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                padding: 2px;
+                                animation: fadeIn 0.3s ease;
+                            ">${unreadCount}</span>
                         `;
                     } else {
-                        notificationDot.textContent = unreadCount;
+                        existingDot.textContent = unreadCount;
                     }
-                } else if (notificationDot) {
-                    notificationDot.remove();
+                } else if (existingDot) {
+                    existingDot.remove();
                 }
             } catch (error) {
                 console.error('Error updating notification count:', error);
@@ -2331,6 +2607,44 @@ const firebaseConfig = {
                 },
                 true // Toon annuleerknop
             );
+        }
+
+        // Voeg deze variabele toe aan het begin van het script
+        let replyingTo = null;
+
+        // Voeg deze functies toe
+        function replyToMessage(messageId, replyUsername, replyText) {
+            // Annuleer eerst eventuele bestaande reply
+            cancelReply();
+            
+            replyingTo = {
+                messageId: messageId,
+                username: replyUsername,
+                text: replyText
+            };
+
+            // Voeg nieuwe reply preview toe boven het invoerveld
+            const inputContainer = document.querySelector('.input-container');
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'reply-preview';
+            previewDiv.innerHTML = `
+                <span class="close-reply" onclick="cancelReply()">
+                    <i class="fas fa-times"></i>
+                </span>
+                <div class="reply-header">Antwoord aan ${replyUsername}</div>
+                <div class="reply-text">${replyText}</div>
+            `;
+
+            inputContainer.insertBefore(previewDiv, inputContainer.firstChild);
+            document.getElementById('messageInput').focus();
+        }
+
+        function cancelReply() {
+            replyingTo = null;
+            const preview = document.querySelector('.reply-preview');
+            if (preview) {
+                preview.remove();
+            }
         }
     </script>
 </body>
