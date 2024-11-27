@@ -1,6 +1,16 @@
 Software License Agreement
 This Software License Agreement (the "License") governs the use, reproduction, and distribution of the software provided in this repository (the "Software") and is entered into by the repository owner, Niels Coert ("Licensor"), and any individual or organization using the Software (the "User").
 
+Overview of Permissions and Restrictions
+Permissions
+✅ Private Use: Users are allowed to use the Software for personal, private, and educational purposes.
+✅ Modification: Users may modify the Software for personal use only, provided all attributions and this License are retained.
+✅ Distribution: Users may distribute unmodified copies of the Software under the terms of this License.
+Restrictions
+❌ Commercial Use: The Software may not be used for any commercial purposes or financial gain without explicit written permission from the Licensor.
+❌ Attribution Removal: Users must not remove or alter credits, attributions, or copyright notices.
+❌ Terms Alteration: Users are prohibited from modifying the terms of service (TOS) or privacy policy of the Software if it is integrated into other works or projects.
+
 1. Definitions
 Software: Refers to all code, documentation, files, assets, and related materials included in this repository.
 User: Any individual or entity using, reproducing, or modifying the Software.
