@@ -1379,7 +1379,6 @@ const firebaseConfig = {
                 if (!document.hasFocus()) {
                     flashTitle(true);
                 }
-                return `<div class="mentioned">${formattedText}</div>`;
             }
             
             return formattedText;
@@ -1633,6 +1632,7 @@ const firebaseConfig = {
         });
 
         function logout() {
+            localStorage.removeItem('lastReadNotifications'); // Reset notificaties bij uitloggen
             auth.signOut()
                 .then(() => {
                     window.location.href = 'index.html';
@@ -2376,7 +2376,7 @@ const firebaseConfig = {
         }
 
         // Voeg deze variabele toe aan het begin van het script
-        let lastReadNotifications = 0;
+        let lastReadNotifications = parseInt(localStorage.getItem('lastReadNotifications')) || 0;
 
         // Update de showNotifications functie
         function showNotifications() {
@@ -2503,6 +2503,7 @@ const firebaseConfig = {
                 );
                 
                 lastReadNotifications = newCount;
+                localStorage.setItem('lastReadNotifications', newCount.toString());
             }).catch((error) => {
                 console.error('Error loading notifications:', error);
                 showCustomModal('Fout', 'Kon meldingen niet laden');

@@ -134,6 +134,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     
     <script>
         const firebaseConfig = {
@@ -152,37 +153,38 @@
 
         // Continue check functie
         function checkBanStatus(uid) {
+            console.log('Checking ban status for uid:', uid); // Debug log
             const warningsRef = database.ref(`user-warnings/${uid}`);
             warningsRef.on('value', (snapshot) => {
+                console.log('Warning data:', snapshot.val()); // Debug log
                 if (!snapshot.exists() || !snapshot.val().blocked) {
-                    // Gebruiker is niet gebanned, stuur door naar 403.html
+                    console.log('User is not banned, redirecting...'); // Debug log
                     window.location.href = '403.html';
+                } else {
+                    console.log('User is banned, staying on page'); // Debug log
                 }
+            }, (error) => {
+                console.error('Error checking warnings:', error); // Error log
             });
         }
 
-        // Check ban status wanneer de pagina laadt en blijf monitoren
-        auth.onAuthStateChanged(async (user) => {
+        // Check ban status wanneer de pagina laadt
+        auth.onAuthStateChanged((user) => {
+            console.log('Auth state changed:', user); // Debug log
             if (user) {
-                try {
-                    // Start continue monitoring van ban status
-                    checkBanStatus(user.uid);
-                } catch (error) {
-                    console.error('Error checking ban status:', error);
-                    window.location.href = 'chat.html';
-                }
+                checkBanStatus(user.uid);
             } else {
-                // Niet ingelogd, stuur door naar 403.html
+                console.log('No user logged in, redirecting...'); // Debug log
                 window.location.href = '403.html';
             }
         });
 
-        // Cleanup functie voor wanneer de pagina wordt verlaten
+        // Cleanup functie
         window.addEventListener('beforeunload', () => {
             const user = auth.currentUser;
             if (user) {
                 const warningsRef = database.ref(`user-warnings/${user.uid}`);
-                warningsRef.off(); // Stop met luisteren naar veranderingen
+                warningsRef.off();
             }
         });
 
