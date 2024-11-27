@@ -1,0 +1,36 @@
+Software License Agreement
+This Software License Agreement (the "License") governs the use, reproduction, and distribution of the software provided in this repository (the "Software") and is entered into by the repository owner, Niels Coert ("Licensor"), and any individual or organization using the Software (the "User").
+
+1. Definitions
+Software: Refers to all code, documentation, files, assets, and related materials included in this repository.
+User: Any individual or entity using, reproducing, or modifying the Software.
+Repository: This GitHub repository, as maintained by Niels Coert.
+2. Permitted Uses
+The Software may be used solely for:
+
+Personal review and study.
+Non-commercial projects or activities where no financial gain is obtained.
+Testing or educational purposes.
+3. Prohibited Uses
+The following actions are strictly prohibited:
+
+Commercial Use: The Software, or any derivative works based on it, must not be used for commercial purposes or financial gain without explicit written permission from the Licensor.
+Modification of Terms: Users are not permitted to alter or modify the terms of service (TOS) or privacy policy of the original project from which the Software is derived, if applicable.
+Attribution Removal: Any credits, rights, or attributions specified in the Software must not be removed or altered.
+4. Attribution Requirements
+Users of the Software must:
+
+Attribute the Software to Niels Coert or reference this repository in a clear and visible manner within any derived works or documentation.
+Include this License file and any relevant copyright notices within distributions of the Software or derived works.
+5. Restrictions on Redistribution
+Redistribution of the Software or any derivative works must:
+
+Retain all original attributions, copyright notices, and this License.
+Be shared under the same licensing terms as this License.
+6. No Warranty
+THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+7. Termination
+This License is effective until terminated. The Licensor may terminate this License immediately if the User breaches any of the terms outlined herein. Upon termination, the User must cease all use of the Software and destroy any copies in their possession.
+
+By using the Software, you agree to the terms and conditions of this License.
