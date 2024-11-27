@@ -312,6 +312,148 @@
             scrollbar-width: thin;
             scrollbar-color: var(--primary-color) var(--bg-color);
         }
+
+        /* Developers sectie styling */
+        .developers-section {
+            margin-top: 40px;
+            background: var(--container-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .developers-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .developers-header:hover {
+            background-color: var(--bg-color);
+        }
+
+        .developers-header h2 {
+            margin: 0;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #developerArrow {
+            transition: transform 0.3s ease;
+            color: var(--primary-color);
+        }
+
+        .developers-header.active #developerArrow {
+            transform: rotate(180deg);
+        }
+
+        .developers-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .developers-content.show {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .dev-info-card {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .dev-info-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .dev-info-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .dev-info-card li {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .dev-info-card li:hover {
+            transform: translateX(5px);
+        }
+
+        .dev-info-card li strong {
+            display: block;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .dev-info-card li p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .open-source-notice {
+            padding: 20px;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .open-source-notice h3 {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .open-source-notice p {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .tech-details {
+            list-style: none;
+            padding-left: 15px;
+            margin-top: 8px;
+            border-left: 2px solid var(--primary-color);
+        }
+
+        .tech-details li {
+            font-size: 13px;
+            padding: 4px 0;
+            margin: 0;
+            transform: none !important;
+            background: none;
+        }
+
+        .tech-details li:hover {
+            transform: none !important;
+        }
+
+        .dev-info-card li:hover .tech-details {
+            transform: none;
+        }
+
+        .copyright {
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .copyright i {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -498,6 +640,50 @@
         </div>
     </div>
 
+    <div class="developers-section">
+        <div class="developers-header" onclick="toggleDevelopers()">
+            <h2><i class="fas fa-code"></i> Voor Ontwikkelaars</h2>
+            <i class="fas fa-chevron-down" id="developerArrow"></i>
+        </div>
+        
+        <div class="developers-content" id="developersContent">
+            <div class="open-source-notice" style="padding: 30px;">
+                <h3 style="font-size: 24px; margin-bottom: 20px;">
+                    <i class="fas fa-lock-open"></i> Open Source Project
+                </h3>
+                
+                <div style="margin-bottom: 25px; line-height: 1.6;">
+                    <p>Deze applicatie is open source en de broncode is beschikbaar voor:</p>
+                    <ul style="list-style-type: none; padding: 0; margin: 15px 0;">
+                        <li style="margin-bottom: 10px;">
+                            <i class="fas fa-check" style="color: var(--primary-color); margin-right: 10px;"></i>
+                            Code review en inspectie
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <i class="fas fa-check" style="color: var(--primary-color); margin-right: 10px;"></i>
+                            Educatieve doeleinden
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <i class="fas fa-check" style="color: var(--primary-color); margin-right: 10px;"></i>
+                            Technische referentie
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(220, 53, 69, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <p style="color: #dc3545; margin: 0;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 10px;"></i>
+                        <strong>Let op:</strong> Het project mag niet worden gebruikt voor commerciële doeleinden of eigen diensten zonder uitdrukkelijke toestemming.
+                    </p>
+                </div>
+
+                <p class="copyright" style="text-align: center; margin: 0;">
+                    <i class="far fa-copyright"></i> 2024 Niels Coert. Alle rechten voorbehouden.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <script>
         async function loadBannerPhotos() {
             try {
@@ -646,6 +832,15 @@
 
         function showPrivacy() {
             document.getElementById('privacyModal').style.display = 'block';
+        }
+
+        function toggleDevelopers() {
+            const header = document.querySelector('.developers-header');
+            const content = document.getElementById('developersContent');
+            const arrow = document.getElementById('developerArrow');
+            
+            header.classList.toggle('active');
+            content.classList.toggle('show');
         }
     </script>
 </body>
