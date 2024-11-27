@@ -150,19 +150,23 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // Check ban status wanneer de pagina laadt
+        // Continue check functie
+        function checkBanStatus(uid) {
+            const warningsRef = database.ref(`user-warnings/${uid}`);
+            warningsRef.on('value', (snapshot) => {
+                if (!snapshot.exists() || !snapshot.val().blocked) {
+                    // Gebruiker is niet gebanned, stuur door naar 403.html
+                    window.location.href = '403.html';
+                }
+            });
+        }
+
+        // Check ban status wanneer de pagina laadt en blijf monitoren
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 try {
-                    // Check of gebruiker gebanned is
-                    const warningsRef = database.ref(`user-warnings/${user.uid}`);
-                    const snapshot = await warningsRef.once('value');
-                    
-                    if (!snapshot.exists() || !snapshot.val().blocked) {
-                        // Gebruiker is niet gebanned, stuur door naar 403.html
-                        window.location.href = '403.html';
-                    }
-                    // Anders blijf op de banned pagina
+                    // Start continue monitoring van ban status
+                    checkBanStatus(user.uid);
                 } catch (error) {
                     console.error('Error checking ban status:', error);
                     window.location.href = 'chat.html';
@@ -170,6 +174,15 @@
             } else {
                 // Niet ingelogd, stuur door naar 403.html
                 window.location.href = '403.html';
+            }
+        });
+
+        // Cleanup functie voor wanneer de pagina wordt verlaten
+        window.addEventListener('beforeunload', () => {
+            const user = auth.currentUser;
+            if (user) {
+                const warningsRef = database.ref(`user-warnings/${user.uid}`);
+                warningsRef.off(); // Stop met luisteren naar veranderingen
             }
         });
 
