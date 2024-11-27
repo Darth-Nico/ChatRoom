@@ -178,11 +178,22 @@
         }
         .banner-container {
             width: 100%;
-            height: 200px;
+            height: 300px;
             overflow: hidden;
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
             background: var(--primary-color);
-            margin-bottom: 0;
+        }
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3));
+            z-index: 1;
         }
         .photo-banner {
             display: flex;
@@ -190,10 +201,10 @@
             height: 100%;
         }
         .banner-photo {
-            height: 200px;
-            min-width: 250px;
+            height: 300px;
+            min-width: 300px;
             object-fit: cover;
-            margin-right: 0;
+            filter: grayscale(30%);
         }
         @keyframes slide {
             0% {
@@ -208,10 +219,26 @@
             top: 20px;
             right: 20px;
             z-index: 1000;
+            background-color: var(--container-bg);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .theme-switch:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
 
         .theme-switch i {
             color: var(--text-color);
+            font-size: 18px;
         }
 
         @media (max-width: 768px) {
@@ -287,10 +314,12 @@
             .theme-switch {
                 top: 15px;
                 right: 15px;
-                background: var(--container-bg);
-                padding: 8px;
-                border-radius: 50%;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                width: 35px;
+                height: 35px;
+            }
+
+            .theme-switch i {
+                font-size: 16px;
             }
         }
 
@@ -665,6 +694,46 @@
 
             .feature-modal-content a:active {
                 opacity: 0.7;
+            }
+        }
+
+        /* Voeg deze CSS regels toe aan de style sectie */
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 13px; /* Kleinere tekst */
+            color: var(--text-color);
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 16px; /* Kleinere checkbox */
+            height: 16px; /* Kleinere checkbox */
+            margin-top: 2px; /* Uitlijnen met tekst */
+            cursor: pointer;
+        }
+
+        .checkbox-container a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .checkbox-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Update media query voor mobiel */
+        @media (max-width: 768px) {
+            .checkbox-container {
+                font-size: 12px;
+                margin: 8px 0;
+            }
+
+            .checkbox-container input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
             }
         }
     </style>
