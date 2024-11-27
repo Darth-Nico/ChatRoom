@@ -287,6 +287,31 @@
         .feature-modal-list li:last-child {
             border-bottom: none;
         }
+
+        /* Scrollbar styling voor modals */
+        .feature-modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .feature-modal-content::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: 4px;
+        }
+
+        .feature-modal-content::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .feature-modal-content::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        /* Firefox scrollbar styling */
+        .feature-modal-content {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--bg-color);
+        }
     </style>
 </head>
 <body>
