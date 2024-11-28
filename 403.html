@@ -29,28 +29,24 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: var(--bg-color);
             color: var(--text-color);
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
         }
 
         .container {
-            max-width: 600px;
-            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
             background-color: var(--container-bg);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             text-align: center;
-            margin: 20px;
             position: relative;
             z-index: 1;
-            transform: translateY(40px);
         }
 
         .error-icon {
@@ -143,6 +139,136 @@
         @keyframes slide {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
+        }
+
+        /* Mobiele aanpassingen */
+        @media (max-width: 768px) {
+            .banner-container {
+                display: none;
+            }
+
+            body {
+                padding: 20px;
+                height: 100vh;
+                position: relative;
+                overflow-y: auto;
+            }
+
+            .container {
+                width: 100%;
+                max-width: none;
+                padding: 25px;
+                margin: 0;
+                transform: none;
+                box-sizing: border-box;
+            }
+
+            .theme-switch {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+
+            .error-icon {
+                font-size: 48px;
+                margin-bottom: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin: 15px 0;
+            }
+
+            .warning-box {
+                padding: 20px;
+                margin: 15px 0;
+            }
+
+            .back-button {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+                margin-top: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+        }
+
+        /* Extra aanpassingen voor kleine schermen */
+        @media (max-width: 320px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .error-icon {
+                font-size: 40px;
+            }
+
+            .warning-box {
+                padding: 15px;
+            }
+        }
+
+        /* Landscape modus aanpassingen */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+                margin: 0 auto;
+            }
+
+            .error-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+
+            .warning-box {
+                padding: 10px;
+                margin: 10px 0;
+            }
+
+            .back-button {
+                margin-top: 10px;
+                padding: 8px;
+            }
+        }
+
+        /* Verbeterde touch targets */
+        .back-button,
+        .theme-switch {
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Verbeterde focus states voor toegankelijkheid */
+        .back-button:focus,
+        .theme-switch:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Verbeterde hover states voor touch devices */
+        @media (hover: hover) {
+            .back-button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
         }
     </style>
 </head>
